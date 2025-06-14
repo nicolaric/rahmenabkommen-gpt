@@ -57,7 +57,7 @@ def main():
         st.session_state.chat_history = None
 
     st.header("Rahmenvertrag GPT :flag-ch::flag-eu:")
-    user_question = st.text_input("Stelle deiene Frage zum Rahmenvertrag:",)
+    user_question = st.text_input("Stelle deine Frage zum Rahmenvertrag:",)
     if user_question:
         handle_userinput(user_question)
 
