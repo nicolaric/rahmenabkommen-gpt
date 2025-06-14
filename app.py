@@ -45,7 +45,7 @@ def handle_userinput(user_question):
 
 def main():
     load_dotenv()
-    st.set_page_config(page_title="Bilaterale III GPT", page_icon=":flag-ch:")
+    st.set_page_config(page_title="Rahmenvertrag GPT", page_icon=":flag-ch:")
     st.write(css, unsafe_allow_html=True)
 
     if "vectorstore" not in st.session_state:
@@ -56,8 +56,8 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
 
-    st.header("Bilaterale III GPT :flag-ch::flag-eu:")
-    user_question = st.text_input("Stelle deiene Frage zu den Bilateralten III:",)
+    st.header("Rahmenvertrag GPT :flag-ch::flag-eu:")
+    user_question = st.text_input("Stelle deiene Frage zum Rahmenvertrag:",)
     if user_question:
         handle_userinput(user_question)
 
