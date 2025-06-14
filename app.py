@@ -56,8 +56,8 @@ def main():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
 
-    st.header("Institutionelles Rahmenabkommen GPT :flag-ch:")
-    user_question = st.text_input("Stelle deiene Frage zum Rahmenabkommen:",)
+    st.header("Institutionelle Abkommen GPT :flag-ch:")
+    user_question = st.text_input("Stelle deiene Frage zum InstA:",)
     if user_question:
         handle_userinput(user_question)
 
