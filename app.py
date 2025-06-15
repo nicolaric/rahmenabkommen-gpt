@@ -11,12 +11,14 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
+import csv
 
-# Lade Umgebungsvariablen (inkl. HUGGINGFACE_HUB_TOKEN)
 load_dotenv()
 
-# Optional: manuell setzen, falls nicht über .env
-# os.environ["HUGGINGFACE_HUB_TOKEN"] = "dein_token"
+def log_to_csv(question, response):
+    with open("interactions.csv", mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow([question, response['answer']])
 
 def load_vectorstore(path="./vectorstore_index"):
     vectorstore = FAISS.load_local(
@@ -48,6 +50,7 @@ def handle_userinput(user_question):
     for i, message in enumerate(st.session_state.chat_history):
         template = user_template if i % 2 == 0 else bot_template
         st.write(template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
+        log_to_csv(user_question, response)
 
 def main():
     st.set_page_config(page_title="Rahmenvertrag GPT", page_icon=":flag-ch:")
@@ -55,6 +58,8 @@ def main():
 
     if "embedding_model" not in st.session_state:
         st.session_state.embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        #st.session_state.embedding_model = SentenceTransformerEmbeddings(model_name="/home/nicola/.cache/huggingface/hub/models--sentence-transformers--all-MiniLM-L6-v2/snapshots/c9745ed1d9f207416be6d2e6f8de32d1f16199bf")
+
 
     if "vectorstore" not in st.session_state:
         st.session_state.vectorstore = load_vectorstore("vectorstore_index")
