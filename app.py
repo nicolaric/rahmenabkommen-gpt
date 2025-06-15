@@ -52,7 +52,8 @@ def handle_userinput(user_question):
     for i, message in enumerate(st.session_state.chat_history):
         template = user_template if i % 2 == 0 else bot_template
         st.write(template.replace("{{MSG}}", message.content), unsafe_allow_html=True)
-        log_to_csv(user_question, response)
+        
+    log_to_csv(user_question, response)
 
 def main():
     st.set_page_config(page_title="Rahmenvertrag GPT", page_icon=":flag-ch:")
