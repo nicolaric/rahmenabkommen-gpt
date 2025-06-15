@@ -12,13 +12,15 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
 import csv
+from datetime import datetime
 
 load_dotenv()
 
 def log_to_csv(question, response):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open("interactions.csv", mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow([question, response['answer']])
+        writer.writerow([question, response['answer'], timestamp])
 
 def load_vectorstore(path="./vectorstore_index"):
     vectorstore = FAISS.load_local(
