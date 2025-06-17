@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import csv
@@ -17,7 +18,7 @@ from langchain.chains import ConversationalRetrievalChain
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+CORS(app)
 
 # Initialize global state
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
