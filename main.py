@@ -17,6 +17,7 @@ from langchain.chains import ConversationalRetrievalChain
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 # Initialize global state
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
