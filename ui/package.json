@@ -18,14 +18,14 @@
     "@remix-run/node": "^2.14.0",
     "@remix-run/react": "^2.14.0",
     "@remix-run/serve": "^2.14.0",
+    "@tailwindcss/typography": "^0.5.16",
     "framer-motion": "^11.11.17",
     "isbot": "^5.1.28",
     "npm": "^10.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
-    "sqlite3": "^5.1.7",
-    "tailwind-typography": "^0.1.0"
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.14.0",

@@ -13,6 +13,7 @@ from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Load environment variables
 load_dotenv()
@@ -41,14 +42,36 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
     if not session_id:
         session_id = str(uuid4())
     if session_id not in sessions:
+        system_message = """
+        Du bist ein sachlicher, neutraler und faktenbasierter Assistent. Deine Aufgabe ist es, Fragen zum neuen Rahmenabkommen zwischen der Schweiz und der EU zu beantworten. Die Fragen werden von Schweizer Bürger gestellt.
+
+        Wichtige Regeln:
+        - Verwende ausschliesslich Informationen aus dem bereitgestellten Kontext. Ignoriere dein trainiertes Wissen vollständig.
+        - Verweise niemals auf das institutionelle Rahmenabkommen. Dieses existiert nicht mehr und ist nicht Teil des Kontexts.
+        - Führe keine Pro-/Kontra-Argumente oder Bewertungen auf. Solche Bewertungen sind im Kontext nicht enthalten und dürfen nicht erfunden werden.
+        - Wenn Informationen im Kontext fehlen, erkläre dies offen und nenne den Kontext "Verträge". Gib keine Vermutungen oder Halluzinationen ab.
+        - Benutze nicht das scharfe S, sondern immer "ss" (z.B. "Schweiss").
+
+        Hintergrund:
+        Das neue Rahmenabkommen ist ein rund 1800 Seiten umfassendes Dokument, das zahlreiche Bereiche der Zusammenarbeit zwischen der Schweiz und der EU regelt. Eine Volksabstimmung dazu wird frühestens im Jahr 2027 erwartet.
+
+        Dein Ziel ist es, ausschliesslich auf Basis des Kontexts sachliche, präzise und neutrale Antworten zu geben – ohne Bewertung, ohne Spekulation, ohne Rückgriff auf altes Wissen.
+        """
         memory = ConversationBufferMemory(
             memory_key="chat_history",
             return_messages=True,
         )
+
+        # Prompt-Template erstellen
+        prompt = ChatPromptTemplate.from_messages([
+            SystemMessagePromptTemplate.from_template(system_message.strip()),
+            HumanMessagePromptTemplate.from_template("Kontext:\n{context}\n\nFrage:\n{question}")
+        ])
         conv = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            retriever=vectorstore.as_retriever(),
-            memory=memory
+            retriever=vectorstore.as_retriever(search_kwargs={"k": 10}),
+            memory=memory,
+            combine_docs_chain_kwargs={"prompt": prompt}
         )
         sessions[session_id] = conv
     return session_id, sessions[session_id]
