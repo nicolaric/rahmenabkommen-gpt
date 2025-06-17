@@ -8,7 +8,7 @@
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
-    "start-prod": "PORT=4200 remix-serve ./build/server/index.js",
+    "start-prod": "PORT=4201 remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -23,7 +23,9 @@
     "npm": "^10.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sqlite3": "^5.1.7"
+    "react-markdown": "^10.1.0",
+    "sqlite3": "^5.1.7",
+    "tailwind-typography": "^0.1.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.14.0",
