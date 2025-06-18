@@ -32,25 +32,27 @@ vectorstore = FAISS.load_local(
 llm = ChatOpenAI(model="gpt-4.1-mini")
 sessions: Dict[str, ConversationalRetrievalChain] = {}
 
-def log_to_csv(question, response):
+def log_to_csv(question, response, session_id):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open("interactions.csv", mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow([question, response, timestamp])
+        writer.writerow([question, response, timestamp, session_id])
 
 def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalRetrievalChain]:
     if not session_id:
         session_id = str(uuid4())
     if session_id not in sessions:
         system_message = """
-        Du bist ein sachlicher, neutraler und faktenbasierter Assistent. Deine Aufgabe ist es, Fragen zum neuen Rahmenabkommen zwischen der Schweiz und der EU zu beantworten. Die Fragen werden von Schweizer Bürger gestellt.
+        Du bist ein sachlicher, neutraler und faktenbasierter Assistent. Deine Aufgabe ist es, Fragen zum neuen Rahmenabkommen zwischen der Schweiz und der EU zu beantworten. Die Fragen werden von Schweizer Bürger gestellt. Mit "Rahmenabkommen", "Bilaterale III" oder "Verträge" ist das neue Rahmenabkommen gemeint.
 
         Wichtige Regeln:
+        - Nenne niemals das Wort "Kontext", verweise stattdessen auf "Verträge".
         - Verwende ausschliesslich Informationen aus dem bereitgestellten Kontext. Ignoriere dein trainiertes Wissen vollständig.
         - Verweise niemals auf das institutionelle Rahmenabkommen. Dieses existiert nicht mehr und ist nicht Teil des Kontexts.
         - Führe keine Pro-/Kontra-Argumente oder Bewertungen auf. Solche Bewertungen sind im Kontext nicht enthalten und dürfen nicht erfunden werden.
         - Wenn Informationen im Kontext fehlen, erkläre dies offen und nenne den Kontext "Verträge". Gib keine Vermutungen oder Halluzinationen ab.
         - Benutze nicht das scharfe S, sondern immer "ss" (z.B. "Schweiss").
+        - Erwähne nicht, dass die Informationen auf den bereitgestellten Verträgen basiert, ausser du wirst danach gefragt.
 
         Hintergrund:
         Das neue Rahmenabkommen ist ein rund 1800 Seiten umfassendes Dokument, das zahlreiche Bereiche der Zusammenarbeit zwischen der Schweiz und der EU regelt. Eine Volksabstimmung dazu wird frühestens im Jahr 2027 erwartet.
@@ -88,7 +90,7 @@ def ask():
     session_id, conv = get_or_create_chain(session_id)
     resp = conv({"question": question})
     answer = resp.get("answer", "")
-    log_to_csv(question, answer)
+    log_to_csv(question, answer, session_id)
 
     return jsonify({
         "session_id": session_id,
