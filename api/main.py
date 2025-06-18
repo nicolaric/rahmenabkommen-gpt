@@ -15,15 +15,21 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy(app)
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 CORS(app)
+db = SQLAlchemy(app)
+
+class Interaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    session_id = db.Column(db.String(36), nullable=True)
 
 # Initialize global state
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -35,13 +41,6 @@ vectorstore = FAISS.load_local(
 )
 llm = ChatOpenAI(model="gpt-4.1-mini")
 sessions: Dict[str, ConversationalRetrievalChain] = {}
-
-class Interaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.Text, nullable=False)
-    answer = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    session_id = db.Column(db.String(36), nullable=False)
 
 def log_to_db(question, answer, session_id):
     interaction = Interaction(
