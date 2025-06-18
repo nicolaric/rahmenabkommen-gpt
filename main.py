@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-import csv
 from typing import Optional, Dict, Tuple
 from uuid import uuid4
 from datetime import datetime
@@ -14,11 +13,16 @@ from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy(app)
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 CORS(app)
 
 # Initialize global state
@@ -32,11 +36,21 @@ vectorstore = FAISS.load_local(
 llm = ChatOpenAI(model="gpt-4.1-mini")
 sessions: Dict[str, ConversationalRetrievalChain] = {}
 
-def log_to_csv(question, response, session_id):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("interactions.csv", mode="a", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow([question, response, timestamp, session_id])
+class Interaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    session_id = db.Column(db.String(36), nullable=False)
+
+def log_to_db(question, answer, session_id):
+    interaction = Interaction(
+        question=question,
+        answer=answer,
+        session_id=session_id
+    )
+    db.session.add(interaction)
+    db.session.commit()
 
 def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalRetrievalChain]:
     if not session_id:
@@ -90,12 +104,23 @@ def ask():
     session_id, conv = get_or_create_chain(session_id)
     resp = conv({"question": question})
     answer = resp.get("answer", "")
-    log_to_csv(question, answer, session_id)
+    log_to_db(question, answer, session_id)
 
     return jsonify({
         "session_id": session_id,
         "answer": answer,
     })
+
+@app.route('/interactions', methods=['GET'])
+def get_interactions():
+    all_interactions = Interaction.query.order_by(Interaction.timestamp.desc()).all()
+    return jsonify([{
+        "question": i.question,
+        "answer": i.answer,
+        "timestamp": i.timestamp.isoformat(),
+        "session_id": i.session_id
+    } for i in all_interactions])
+
 
 if __name__ == '__main__':
     app.run(debug=True)
