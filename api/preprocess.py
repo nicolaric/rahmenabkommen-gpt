@@ -7,8 +7,8 @@ from sentence_transformers import SentenceTransformer
 import tiktoken
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 
-PDF_DIR = "./pdfs"
-FAISS_INDEX_PATH = "vectorstore_index"
+PDF_DIR = "./app/data/pdfs"
+FAISS_INDEX_PATH = "./app/data/vectorstore_index"
 
 def get_pdf_text(pdf_paths):
     text = ""
