@@ -4,9 +4,8 @@ from dotenv import load_dotenv
 import os
 from typing import Optional, Dict, Tuple
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
-from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
@@ -14,6 +13,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 # Load environment variables
 load_dotenv()
@@ -23,13 +23,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class Interaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     session_id = db.Column(db.String(36), nullable=True)
+    public = db.Column(db.Boolean, default=False)
 
 # Initialize global state
 embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -112,7 +114,7 @@ def ask():
 
 @app.route('/interactions', methods=['GET'])
 def get_interactions():
-    all_interactions = Interaction.query.order_by(Interaction.timestamp.desc()).all()
+    all_interactions = Interaction.query.filter(Interaction.public == True).order_by(Interaction.timestamp.desc()).all()
     return jsonify([{
         "question": i.question,
         "answer": i.answer,
