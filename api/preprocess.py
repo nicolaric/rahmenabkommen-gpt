@@ -2,7 +2,7 @@ import os
 import time
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from sentence_transformers import SentenceTransformer
 import tiktoken
 from langchain_community.embeddings import SentenceTransformerEmbeddings
@@ -13,6 +13,10 @@ FAISS_INDEX_PATH = "./app/data/vectorstore_index"
 def get_pdf_text(pdf_paths):
     text = ""
     for path in pdf_paths:
+        print("\n" + "="*50)
+        print(f"Starte Verarbeitung von PDF: {os.path.basename(path)}")
+        print("="*50 + "\n")
+
         reader = PdfReader(path)
         for page in reader.pages:
             page_text = page.extract_text()
@@ -51,26 +55,51 @@ def embed_with_sentence_transformers(model, texts):
 
 def build_and_save_vectorstore(pdf_dir, output_path):
     pdf_paths = [os.path.join(pdf_dir, f) for f in os.listdir(pdf_dir) if f.endswith(".pdf")]
+    print(f"PDFs gefunden: {len(pdf_paths)}")
+    
     raw_text = get_pdf_text(pdf_paths)
+    print(f"Länge des Rohtexts: {len(raw_text)} Zeichen")
+    
     chunks = get_text_chunks(raw_text)
-
-    model = SentenceTransformer('all-MiniLM-L6-v2')  # Fast, good quality small model
-
+    print(f"Anzahl Chunks insgesamt: {len(chunks)}")
+    if len(chunks) > 0:
+        print(f"Beispiel-Chunk: {chunks[0]}")
+    
     batches = chunk_texts_by_token_limit(chunks, max_tokens=15000)
-
+    print(f"Anzahl Batches: {len(batches)}")
+    if len(batches) > 0:
+        print(f"Beispiel-Batch Größe: {len(batches[0])} Chunks")
+        print(f"Erster Chunk im Batch: {batches[0][0]}")
+    
+    model = SentenceTransformer('all-MiniLM-L6-v2')
     embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")    
+    
     all_texts, all_embeddings = [], []
+    
     for i, batch in enumerate(batches):
-        print(batch)
+        # print(batch)
+        # A little clearer:
+        print("\n" + "="*40)
+        print(f"Batch {i+1} wird eingebettet ({len(batch)} Chunks)...")
+        print("="*40)
+        
         batch_embeddings = embed_with_sentence_transformers(model, batch)
+        
+        print(f"Beispiel Embedding Vektor (erste 5 Werte): {batch_embeddings[0][:5]}")
+        
         all_texts.extend(batch)
         all_embeddings.extend(batch_embeddings)
-        print(f"Embedded batch {i+1}/{len(batches)}")
+        
+        print(f"Gesamt bisher: {len(all_texts)} Texte, {len(all_embeddings)} Embeddings")
         time.sleep(1)  # small delay to avoid resource spikes
-
-        vectorstore = FAISS.from_embeddings(zip(all_texts, all_embeddings), embedding_model)
-        vectorstore.save_local(output_path)  
-        print(f"✅ Vectorstore saved to {output_path}")
+    
+    print("\n" + "#"*60)
+    print("Alle Batches eingebettet, erstelle finalen Vektorstore...")
+    print("#"*60)
+    
+    vectorstore = FAISS.from_embeddings(zip(all_texts, all_embeddings), embedding_model)
+    vectorstore.save_local(output_path)
+    print(f"✅ Vectorstore gespeichert unter: {output_path}")
 
 if __name__ == "__main__":
     build_and_save_vectorstore(PDF_DIR, FAISS_INDEX_PATH)
