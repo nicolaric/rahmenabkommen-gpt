@@ -9,7 +9,12 @@ class Conversation(db.Model):
     shared = db.Column(db.Boolean, default=False)
     posted_in_feed = db.Column(db.Boolean, default=False)
     session_id = db.Column(db.String(36), nullable=True)
-    messages = db.relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+    messages = db.relationship(
+        "Message",
+        order_by="Message.timestamp",
+        back_populates="conversation",
+        cascade="all, delete-orphan"
+    )
     creation_date = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
 
 class Message(db.Model):
