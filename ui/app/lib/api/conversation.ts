@@ -6,7 +6,7 @@ export async function shareConversation(body: {
   sessionId: string;
   postedInFeed?: boolean;
 }) {
-  return api(`${baseUrl}/conversation/share`, {
+  return api(`${baseUrl}/conversations/share`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export async function shareConversation(body: {
 }
 
 export function getConversation(conversationId: string): Promise<Conversation> {
-  return api<Conversation>(`${baseUrl}/conversation/${conversationId}`, {
+  return api<Conversation>(`${baseUrl}/conversations/${conversationId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export function getConversation(conversationId: string): Promise<Conversation> {
 }
 
 export function getFeed(): Promise<Conversation[]> {
-  return api<Conversation[]>(`${baseUrl}/conversation/feed`, {
+  return api<Conversation[]>(`${baseUrl}/conversations/feed`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
