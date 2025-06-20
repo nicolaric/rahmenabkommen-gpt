@@ -31,6 +31,10 @@ export default function Index() {
 
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
+  // Backend URL from .env
+  const baseUrl = import.meta.env.VITE_API_URL;
+  console.log(import.meta.env)
+
   // Scroll to the last user message when the conversation changes
   useEffect(() => {
     if (lastUserMessageRef.current) {
@@ -47,7 +51,7 @@ export default function Index() {
     setButtonLoading(true);
     const question = message.trim();
     try {
-      const askRequest = await fetch("https://rahmenabkommen-gpt.ch/api/ask", {
+      const askRequest = await fetch(`${baseUrl}/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

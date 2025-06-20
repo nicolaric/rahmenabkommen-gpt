@@ -4,5 +4,7 @@ from flask_cors import CORS
 
 db = SQLAlchemy()
 migrate = Migrate()
-cors = CORS()
-
+cors = CORS(resources={r"/*": {"origins": [
+    "http://localhost:5173",
+    "https://rahmenabkommen-gpt.ch"
+]}})

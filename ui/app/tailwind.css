@@ -5,8 +5,20 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
+}
 
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
     color-scheme: dark;
   }
+
+  textarea {
+    @apply text-gray-100 bg-gray-900; /* dark mode */
+  }
+}
+
+/* Global textarea styles for light mode */
+textarea {
+  @apply text-neutral-900 bg-white; /* light mode */
 }
