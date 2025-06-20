@@ -4,36 +4,35 @@ import Markdown from "react-markdown";
 import { useToast } from "~/lib/components/toast";
 
 export const meta = () => {
-  return [
-    { charset: "utf-8" },
-    {
-      title:
-        "Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.",
-    },
-    {
-      description: "",
-    },
-    { viewport: "width=device-width,initial-scale=1" },
-  ];
+    return [
+        { charset: "utf-8" },
+        {
+            title:
+                "Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.",
+        },
+        {
+            description: "",
+        },
+        { viewport: "width=device-width,initial-scale=1" },
+    ];
 };
 
 export default function Index() {
-  const { showToast } = useToast();
+    const { showToast } = useToast();
 
-  const [isButtonLoading, setButtonLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [conversation, setConversation] = useState<
-    { role: "user" | "assistant"; content: string }[]
-  >([]);
-  const [conversationSessionId, setConversationSessionId] = useState<
-    string | undefined
-  >(undefined);
+    const [isButtonLoading, setButtonLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [conversation, setConversation] = useState<
+        { role: "user" | "assistant"; content: string }[]
+    >([]);
+    const [conversationSessionId, setConversationSessionId] = useState<
+        string | undefined
+    >(undefined);
 
-  const lastUserMessageRef = useRef<HTMLDivElement>(null);
+    const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
   // Backend URL from .env
   const baseUrl = import.meta.env.VITE_API_URL;
-  console.log(import.meta.env)
 
   // Scroll to the last user message when the conversation changes
   useEffect(() => {
@@ -41,12 +40,12 @@ export default function Index() {
       const element = lastUserMessageRef.current;
       const y = element.getBoundingClientRect().top + window.scrollY - 56;
 
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
-  }, [conversation]);
+            window.scrollTo({ top: y, behavior: "smooth" });
+        }
+    }, [conversation]);
 
-  const handleSendMessage = async () => {
-    if (isButtonLoading) return;
+    const handleSendMessage = async () => {
+        if (isButtonLoading) return;
 
     setButtonLoading(true);
     const question = message.trim();
@@ -74,142 +73,141 @@ export default function Index() {
     }
   };
 
-  return (
-    <div className="w-full min-h-screen bg-gray-50">
-      {!conversation.length && (
-        <div className="flex justify-center items-center w-full h-screen">
-          <div className="fixed top-0 left-0 bg-gray-50 w-full h-12 flex items-center justify-end px-4">
-            <div className="flex items-center gap-4">
-              <a
-                href="https://github.com/nicolaric/rahmenabkommen-gpt"
-                target="_blank"
-              >
-                <img
-                  src="github-mark.svg"
-                  alt="GitHub Logo"
-                  className="h-6 w-6"
-                />
-              </a>
-              <a href="https://x.com/NicolaRic2" target="_blank">
-                <img src="x.png" alt="X Logo" className="h-6 w-6" />
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-col gap-8 max-w-[48rem] w-11/12">
-            <div className="flex items-center gap-4 justify-center">
-              <img src="logo.png" alt="Logo" width="50px" height="50px" />
-              <div className="text-gray-600 text-2xl">Rahmenabkommen GPT</div>
-            </div>
-            <div className="w-full h-32 p-2 pt-5 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
-              <textarea
-                className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
-                placeholder="Stelle deine Frage zum Rahmenabkommen..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-              ></textarea>
-              <div className="flex self-end h-10">
-                <button
-                  className="w-10 h-10 rounded-full border-none opacity-100 bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
-                  onClick={handleSendMessage}
-                  disabled={isButtonLoading || !message.trim()}
-                >
-                  {!isButtonLoading && <ArrowUpIcon />}
-                  {isButtonLoading && (
-                    <CircleNotchIcon className="animate-spin" />
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="text-gray-300 text-sm text-center">
-              KI kann Fehler machen, bitte überprüfe die Antworten.
-            </div>
-          </div>
-        </div>
-      )}
-      {conversation.length > 0 && (
-        <div>
-          <div className="flex items-center gap-2 p-4 fixed top-0 left-0 bg-gray-50 w-full h-12 justify-between">
-            <div className="flex items-center gap-2">
-              <img src="logo.png" alt="Logo" width="30px" height="30px" />
-              <div className="text-gray-600 text-lg">Rahmenabkommen GPT</div>
-            </div>
-            <div className="flex items-center gap-4">
-              <a
-                href="https://github.com/nicolaric/rahmenabkommen-gpt"
-                target="_blank"
-              >
-                <img
-                  src="github-mark.svg"
-                  alt="GitHub Logo"
-                  className="h-6 w-6"
-                />
-              </a>
-              <a href="https://x.com/NicolaRic2" target="_blank">
-                <img src="x.png" alt="X Logo" className="h-6 w-6" />
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-col items-center justify-center w-full h-full">
-            <div className="flex flex-col gap-4 max-w-[48rem] w-11/12">
-              <div className="p-4 rounded-lg space-y-4 pb-36 pt-14">
-                {conversation.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`p-2 rounded-lg ${
-                      msg.role === "user"
-                        ? "bg-gray-200 border-gray-800 self-end p-4"
-                        : "text-gray-800 self-start p-4 w-full"
-                    }`}
-                    ref={
-                      msg.role === "user" && index === conversation.length - 2
-                        ? lastUserMessageRef
-                        : undefined
-                    }
-                  >
-                    <div className="prose prose-neutral max-w-none">
-                      <Markdown>{msg.content}</Markdown>
+    return (
+        <div className="w-full min-h-screen bg-gray-50">
+            {!conversation.length && (
+                <div className="flex justify-center items-center w-full h-screen">
+                    <div className="fixed top-0 left-0 bg-gray-50 w-full h-12 flex items-center justify-end px-4">
+                        <div className="flex items-center gap-4">
+                            <a
+                                href="https://github.com/nicolaric/rahmenabkommen-gpt"
+                                target="_blank"
+                            >
+                                <img
+                                    src="github-mark.svg"
+                                    alt="GitHub Logo"
+                                    className="h-6 w-6"
+                                />
+                            </a>
+                            <a href="https://x.com/NicolaRic2" target="_blank">
+                                <img src="x.png" alt="X Logo" className="h-6 w-6" />
+                            </a>
+                        </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div className="fixed left-0 bottom-0 flex justify-center bg-gray-50 items-center w-full">
-                <div className="w-11/12 max-w-[48rem] h-32 p-2 pt-5 mb-4 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
-                  <textarea
-                    className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
-                    placeholder="Stelle deine Frage zum Rahmenabkommen..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                  ></textarea>
-                  <div className="flex self-end h-10">
-                    <button
-                      className="w-10 h-10 rounded-full border-none bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
-                      onClick={handleSendMessage}
-                      disabled={isButtonLoading || !message.trim()}
-                    >
-                      {!isButtonLoading && <ArrowUpIcon />}
-                      {isButtonLoading && (
-                        <CircleNotchIcon className="animate-spin" />
-                      )}
-                    </button>
-                  </div>
+                    <div className="flex flex-col gap-8 max-w-[48rem] w-11/12">
+                        <div className="flex items-center gap-4 justify-center">
+                            <img src="logo.png" alt="Logo" width="50px" height="50px" />
+                            <div className="text-gray-600 text-2xl">Rahmenabkommen GPT</div>
+                        </div>
+                        <div className="w-full h-32 p-2 pt-5 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+                            <textarea
+                                className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                                placeholder="Stelle deine Frage zum Rahmenabkommen..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendMessage();
+                                    }
+                                }}
+                            ></textarea>
+                            <div className="flex self-end h-10">
+                                <button
+                                    className="w-10 h-10 rounded-full border-none opacity-100 bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
+                                    onClick={handleSendMessage}
+                                    disabled={isButtonLoading || !message.trim()}
+                                >
+                                    {!isButtonLoading && <ArrowUpIcon />}
+                                    {isButtonLoading && (
+                                        <CircleNotchIcon className="animate-spin" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                        <div className="text-gray-300 text-sm text-center">
+                            KI kann Fehler machen, bitte überprüfe die Antworten.
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
+            )}
+            {conversation.length > 0 && (
+                <div>
+                    <div className="flex items-center gap-2 p-4 fixed top-0 left-0 bg-gray-50 w-full h-12 justify-between">
+                        <div className="flex items-center gap-2">
+                            <img src="logo.png" alt="Logo" width="30px" height="30px" />
+                            <div className="text-gray-600 text-lg">Rahmenabkommen GPT</div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <a
+                                href="https://github.com/nicolaric/rahmenabkommen-gpt"
+                                target="_blank"
+                            >
+                                <img
+                                    src="github-mark.svg"
+                                    alt="GitHub Logo"
+                                    className="h-6 w-6"
+                                />
+                            </a>
+                            <a href="https://x.com/NicolaRic2" target="_blank">
+                                <img src="x.png" alt="X Logo" className="h-6 w-6" />
+                            </a>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center justify-center w-full h-full">
+                        <div className="flex flex-col gap-4 max-w-[48rem] w-11/12">
+                            <div className="p-4 rounded-lg space-y-4 pb-36 pt-14">
+                                {conversation.map((msg, index) => (
+                                    <div
+                                        key={index}
+                                        className={`p-2 rounded-lg ${msg.role === "user"
+                                                ? "bg-gray-200 border-gray-800 self-end p-4"
+                                                : "text-gray-800 self-start p-4 w-full"
+                                            }`}
+                                        ref={
+                                            msg.role === "user" && index === conversation.length - 2
+                                                ? lastUserMessageRef
+                                                : undefined
+                                        }
+                                    >
+                                        <div className="prose prose-neutral max-w-none">
+                                            <Markdown>{msg.content}</Markdown>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="fixed left-0 bottom-0 flex justify-center bg-gray-50 items-center w-full">
+                                <div className="w-11/12 max-w-[48rem] h-32 p-2 pt-5 mb-4 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+                                    <textarea
+                                        className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                                        placeholder="Stelle deine Frage zum Rahmenabkommen..."
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendMessage();
+                                            }
+                                        }}
+                                    ></textarea>
+                                    <div className="flex self-end h-10">
+                                        <button
+                                            className="w-10 h-10 rounded-full border-none bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
+                                            onClick={handleSendMessage}
+                                            disabled={isButtonLoading || !message.trim()}
+                                        >
+                                            {!isButtonLoading && <ArrowUpIcon />}
+                                            {isButtonLoading && (
+                                                <CircleNotchIcon className="animate-spin" />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
