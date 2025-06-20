@@ -47,6 +47,7 @@ def get_conversation(conversation_id):
 def share_conversation():
     data = request.get_json()
     session_id = data.get("session_id")
+    posted_in_feed = data.get("posted_in_feed", False)
 
     if not session_id:
         return jsonify({"error": "Session ID is required"}), 400
@@ -59,6 +60,7 @@ def share_conversation():
     
     # Mark as shared and posted in feed
     conversation.shared = True
+    conversation.posted_in_feed = posted_in_feed
     db.session.commit()
     
     return jsonify({
@@ -66,3 +68,20 @@ def share_conversation():
         "shared": conversation.shared,
         "posted_in_feed": conversation.posted_in_feed,
     }), 200
+
+@conversations_bp.route('/feed', methods=['GET'])
+def get_feed():
+    # Get conversations that are posted in feed
+    conversations = Conversation.query.filter(
+        Conversation.posted_in_feed == True
+    ).order_by(Conversation.creation_date.desc()).all()
+    
+    return jsonify([{
+        "id": conv.id,
+        "creation_date": conv.creation_date.isoformat(),
+        "messages": [{
+            "question": msg.question,
+            "answer": msg.answer,
+            "timestamp": msg.timestamp.isoformat()
+        } for msg in conv.messages]
+    } for conv in conversations])
