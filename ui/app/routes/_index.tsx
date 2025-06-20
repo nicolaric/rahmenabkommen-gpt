@@ -2,6 +2,7 @@ import { ArrowUpIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import { useToast } from "~/lib/components/toast";
+import { ThemeToggle } from "~/lib/components/ThemeToggle";
 
 export const meta = () => {
   return [
@@ -75,10 +76,17 @@ export default function Index() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen">
+    {/* Hintergrundbild am unteren Rand, volle Breite, hinter allem */}
+      <div
+        className="fixed bottom-0 left-0 w-full h-[60rem] bottom-[-24rem] bg-no-repeat bg-bottom bg-cover opacity-40"
+        style={{ backgroundImage: `url('/back.webp')` }}
+        aria-hidden="true"
+      />   
       {!conversation.length && (
-        <div className="flex justify-center items-center w-full h-screen">
-          <div className="fixed top-0 left-0 bg-gray-50 w-full h-12 flex items-center justify-end px-4">
+        <div className="flex justify-center items-center w-full h-screen z-10">
+          <ThemeToggle />
+          <div className="fixed top-0 left-0 w-full h-12 flex items-center justify-end px-4">
             <div className="flex items-center gap-4">
               <a
                 href="https://github.com/nicolaric/rahmenabkommen-gpt"
@@ -87,22 +95,33 @@ export default function Index() {
                 <img
                   src="github-mark.svg"
                   alt="GitHub Logo"
-                  className="h-6 w-6"
+                  className="h-6 w-6 transition hover:brightness-125"
                 />
               </a>
               <a href="https://x.com/NicolaRic2" target="_blank">
-                <img src="x.png" alt="X Logo" className="h-6 w-6" />
+                <img src="X.svg" alt="X Logo" className="h-6 w-6 transition hover:brightness-125" />
               </a>
             </div>
           </div>
-          <div className="flex flex-col gap-8 max-w-[48rem] w-11/12">
-            <div className="flex items-center gap-4 justify-center">
-              <img src="logo.png" alt="Logo" width="50px" height="50px" />
-              <div className="text-gray-600 text-2xl">Rahmenabkommen GPT</div>
+          <div className="flex flex-col gap-8 max-w-[48rem] w-11/12 -mt-48">
+            <div className="flex items-center gap-2 sm:gap-2 md:gap-4 lg:gap-6 justify-center">
+              <img 
+                src="logo-colored.webp" 
+                alt="Logo" 
+                className="w-8 h-8 sm:w-8 sm:h-8 lg:w-14 lg:h-14 md:w-10 md:h-10" 
+              />
+              <div className="text-gray-700 dark:text-white text-2xl sm:text-3xl lg:text-6xl md:text-5xl">
+                Rahmenabkommen GPT
+              </div>
             </div>
-            <div className="w-full h-32 p-2 pt-5 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+            <div className="flex items-center gap-6 justify-center mt-10 mb-6">
+              <div className="text-gray-600 dark:text-gray-400 text-xl max-w-3xl text-center px-6">
+                Stellen Sie Ihre Frage zum neuen Rahmenabkommen zwischen der Schweiz und der EU. Die Antworten sind sachlich, neutral und basieren ausschliesslich auf den offiziellen Verträgen – ohne Meinungen, Bewertungen oder Spekulationen.
+              </div>
+            </div>
+            <div className="h-32 p-2 pt-5 border border-gray-300 dark:border-gray-700 rounded-3xl shadow-sm flex flex-col mx-3">
               <textarea
-                className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                className="w-full flex-grow px-2 resize-none focus:outline-none placeholder-gray-400 dark:placeholder-gray-700"
                 placeholder="Stelle deine Frage zum Rahmenabkommen..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -126,7 +145,7 @@ export default function Index() {
                 </button>
               </div>
             </div>
-            <div className="text-gray-300 text-sm text-center">
+            <div className="text-gray-400 dark:text-gray-600 text-sm text-center">
               KI kann Fehler machen, bitte überprüfe die Antworten.
             </div>
           </div>
@@ -134,10 +153,13 @@ export default function Index() {
       )}
       {conversation.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 p-4 fixed top-0 left-0 bg-gray-50 w-full h-12 justify-between">
-            <div className="flex items-center gap-2">
-              <img src="logo.png" alt="Logo" width="30px" height="30px" />
-              <div className="text-gray-600 text-lg">Rahmenabkommen GPT</div>
+          <div className="relative z-50">
+            <ThemeToggle />
+          </div>            
+          <div className="flex items-center gap-2 p-4 fixed top-2 left-0 w-full h-12 justify-between">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-3 lg:gap-3">
+              <img src="logo-colored.webp" alt="Logo" width="28px" height="28px" />
+              <div className="text-gray-700 dark:text-white text-lg sm:text-2xl lg:text-3xl md:text-4xl">Rahmenabkommen GPT</div>
             </div>
             <div className="flex items-center gap-4">
               <a
@@ -147,24 +169,24 @@ export default function Index() {
                 <img
                   src="github-mark.svg"
                   alt="GitHub Logo"
-                  className="h-6 w-6"
+                  className="h-6 w-6 transition hover:brightness-125"
                 />
               </a>
               <a href="https://x.com/NicolaRic2" target="_blank">
-                <img src="x.png" alt="X Logo" className="h-6 w-6" />
+                <img src="X.svg" alt="X Logo" className="h-6 w-6 transition hover:brightness-125" />
               </a>
             </div>
           </div>
           <div className="flex flex-col items-center justify-center w-full h-full">
             <div className="flex flex-col gap-4 max-w-[48rem] w-11/12">
-              <div className="p-4 rounded-lg space-y-4 pb-36 pt-14">
+              <div className="p-4 rounded-lg space-y-4 pb-36 pt-24">
                 {conversation.map((msg, index) => (
                   <div
                     key={index}
-                    className={`p-2 rounded-lg ${
+                    className={`p-2 rounded-lg bg-gray-200 dark:bg-gray-800 ${
                       msg.role === "user"
-                        ? "bg-gray-200 border-gray-800 self-end p-4"
-                        : "text-gray-800 self-start p-4 w-full"
+                        ? "border-gray-800 self-end p-4 bg-gray-300 dark:bg-gray-900"
+                        : "self-start p-4 w-full"
                     }`}
                     ref={
                       msg.role === "user" && index === conversation.length - 2
@@ -172,16 +194,16 @@ export default function Index() {
                         : undefined
                     }
                   >
-                    <div className="prose prose-neutral max-w-none">
+                    <div className="max-w-none text-gray-700 dark:text-white">
                       <Markdown>{msg.content}</Markdown>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="fixed left-0 bottom-0 flex justify-center bg-gray-50 items-center w-full">
-                <div className="w-11/12 max-w-[48rem] h-32 p-2 pt-5 mb-4 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+              <div className="fixed left-0 bottom-0 flex justify-center items-center w-full">
+                <div className="w-11/12 max-w-[48rem] h-32 p-2 pt-5 mb-20 rounded-3xl shadow-sm flex flex-col border border-gray-300 dark:border-gray-700">
                   <textarea
-                    className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                    className="w-full flex-grow px-2 resize-none focus:outline-none"
                     placeholder="Stelle deine Frage zum Rahmenabkommen..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
