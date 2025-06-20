@@ -10,8 +10,8 @@ def get_conversations():
     conversations = Conversation.query.filter(
         Conversation.posted_in_feed == True
     ).options(
-        db.joinedload(Conversation.messages).order_by(Message.timestamp)
-    ).order_by(Conversation.creation_date.desc()).all()
+        db.joinedload(Conversation.messages)
+    ).all()
     
     return jsonify([{
         "id": conv.id,
