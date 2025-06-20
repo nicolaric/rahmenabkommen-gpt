@@ -1,19 +1,19 @@
-import { ArrowUpIcon, CircleNotchIcon } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
-import Markdown from "react-markdown";
-import { useToast } from "~/lib/components/toast";
+import { ArrowUpIcon, CircleNotchIcon } from '@phosphor-icons/react';
+import { useEffect, useRef, useState } from 'react';
+import Markdown from 'react-markdown';
+import { useToast } from '~/lib/components/toast';
 
 export const meta = () => {
   return [
-    { charset: "utf-8" },
+    { charset: 'utf-8' },
     {
       title:
-        "Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.",
+        'Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.',
     },
     {
-      description: "",
+      description: '',
     },
-    { viewport: "width=device-width,initial-scale=1" },
+    { viewport: 'width=device-width,initial-scale=1' },
   ];
 };
 
@@ -21,9 +21,9 @@ export default function Index() {
   const { showToast } = useToast();
 
   const [isButtonLoading, setButtonLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<
-    { role: "user" | "assistant"; content: string }[]
+    { role: 'user' | 'assistant'; content: string }[]
   >([]);
   const [conversationSessionId, setConversationSessionId] = useState<
     string | undefined
@@ -33,7 +33,7 @@ export default function Index() {
 
   // Backend URL from .env
   const baseUrl = import.meta.env.VITE_API_URL;
-  console.log(import.meta.env)
+  console.log(import.meta.env);
 
   // Scroll to the last user message when the conversation changes
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function Index() {
       const element = lastUserMessageRef.current;
       const y = element.getBoundingClientRect().top + window.scrollY - 56;
 
-      window.scrollTo({ top: y, behavior: "smooth" });
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }, [conversation]);
 
@@ -52,33 +52,33 @@ export default function Index() {
     const question = message.trim();
     try {
       const askRequest = await fetch(`${baseUrl}/ask`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ question, session_id: conversationSessionId }),
       });
       const askResponse = await askRequest.json();
+      setConversationSessionId(askResponse.session_id);
+      setMessage('');
       setConversation((prev) => [
         ...prev,
-        { role: "user", content: question },
-        { role: "assistant", content: askResponse.answer },
+        { role: 'user', content: question },
+        { role: 'assistant', content: askResponse.answer },
       ]);
-      setConversationSessionId(askResponse.session_id);
-      setMessage("");
     } catch (error) {
-      console.error("Error creating API key:", error);
-      showToast("Etwas hat nicht funktioniert...", "error");
+      console.error('Error creating API key:', error);
+      showToast('Etwas hat nicht funktioniert...', 'error');
     } finally {
       setButtonLoading(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="min-h-screen w-full bg-gray-50">
       {!conversation.length && (
-        <div className="flex justify-center items-center w-full h-screen">
-          <div className="fixed top-0 left-0 bg-gray-50 w-full h-12 flex items-center justify-end px-4">
+        <div className="flex h-screen w-full items-center justify-center">
+          <div className="fixed left-0 top-0 flex h-12 w-full items-center justify-end bg-gray-50 px-4">
             <div className="flex items-center gap-4">
               <a
                 href="https://github.com/nicolaric/rahmenabkommen-gpt"
@@ -95,27 +95,27 @@ export default function Index() {
               </a>
             </div>
           </div>
-          <div className="flex flex-col gap-8 max-w-[48rem] w-11/12">
-            <div className="flex items-center gap-4 justify-center">
+          <div className="flex w-11/12 max-w-[48rem] flex-col gap-8">
+            <div className="flex items-center justify-center gap-4">
               <img src="logo.png" alt="Logo" width="50px" height="50px" />
-              <div className="text-gray-600 text-2xl">Rahmenabkommen GPT</div>
+              <div className="text-2xl text-gray-600">Rahmenabkommen GPT</div>
             </div>
-            <div className="w-full h-32 p-2 pt-5 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+            <div className="flex h-32 w-full flex-col rounded-3xl border border-gray-300 bg-white p-2 pt-5 shadow-sm">
               <textarea
-                className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                className="w-full flex-grow resize-none bg-white px-2 focus:outline-none"
                 placeholder="Stelle deine Frage zum Rahmenabkommen..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSendMessage();
                   }
                 }}
               ></textarea>
-              <div className="flex self-end h-10">
+              <div className="flex h-10 self-end">
                 <button
-                  className="w-10 h-10 rounded-full border-none opacity-100 bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-none bg-gray-800 text-2xl text-white opacity-100 transition-transform duration-200 hover:scale-110 disabled:opacity-50"
                   onClick={handleSendMessage}
                   disabled={isButtonLoading || !message.trim()}
                 >
@@ -126,7 +126,7 @@ export default function Index() {
                 </button>
               </div>
             </div>
-            <div className="text-gray-300 text-sm text-center">
+            <div className="text-center text-sm text-gray-300">
               KI kann Fehler machen, bitte überprüfe die Antworten.
             </div>
           </div>
@@ -134,10 +134,10 @@ export default function Index() {
       )}
       {conversation.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 p-4 fixed top-0 left-0 bg-gray-50 w-full h-12 justify-between">
+          <div className="fixed left-0 top-0 flex h-12 w-full items-center justify-between gap-2 bg-gray-50 p-4">
             <div className="flex items-center gap-2">
               <img src="logo.png" alt="Logo" width="30px" height="30px" />
-              <div className="text-gray-600 text-lg">Rahmenabkommen GPT</div>
+              <div className="text-lg text-gray-600">Rahmenabkommen GPT</div>
             </div>
             <div className="flex items-center gap-4">
               <a
@@ -155,19 +155,19 @@ export default function Index() {
               </a>
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center w-full h-full">
-            <div className="flex flex-col gap-4 max-w-[48rem] w-11/12">
-              <div className="p-4 rounded-lg space-y-4 pb-36 pt-14">
+          <div className="flex h-full w-full flex-col items-center justify-center">
+            <div className="flex w-11/12 max-w-[48rem] flex-col gap-4">
+              <div className="space-y-4 rounded-lg p-4 pb-36 pt-14">
                 {conversation.map((msg, index) => (
                   <div
                     key={index}
-                    className={`p-2 rounded-lg ${
-                      msg.role === "user"
-                        ? "bg-gray-200 border-gray-800 self-end p-4"
-                        : "text-gray-800 self-start p-4 w-full"
+                    className={`rounded-lg p-2 ${
+                      msg.role === 'user'
+                        ? 'self-end border-gray-800 bg-gray-200 p-4'
+                        : 'w-full self-start p-4 text-gray-800'
                     }`}
                     ref={
-                      msg.role === "user" && index === conversation.length - 2
+                      msg.role === 'user' && index === conversation.length - 2
                         ? lastUserMessageRef
                         : undefined
                     }
@@ -178,23 +178,23 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-              <div className="fixed left-0 bottom-0 flex justify-center bg-gray-50 items-center w-full">
-                <div className="w-11/12 max-w-[48rem] h-32 p-2 pt-5 mb-4 bg-white border border-gray-300 rounded-3xl shadow-sm flex flex-col">
+              <div className="fixed bottom-0 left-0 flex w-full items-center justify-center bg-gray-50">
+                <div className="mb-4 flex h-32 w-11/12 max-w-[48rem] flex-col rounded-3xl border border-gray-300 bg-white p-2 pt-5 shadow-sm">
                   <textarea
-                    className="w-full flex-grow px-2 resize-none focus:outline-none bg-white"
+                    className="w-full flex-grow resize-none bg-white px-2 focus:outline-none"
                     placeholder="Stelle deine Frage zum Rahmenabkommen..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
+                      if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         handleSendMessage();
                       }
                     }}
                   ></textarea>
-                  <div className="flex self-end h-10">
+                  <div className="flex h-10 self-end">
                     <button
-                      className="w-10 h-10 rounded-full border-none bg-gray-800 flex items-center justify-center text-white text-2xl disabled:opacity-50 hover:scale-110 transition-transform duration-200"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border-none bg-gray-800 text-2xl text-white transition-transform duration-200 hover:scale-110 disabled:opacity-50"
                       onClick={handleSendMessage}
                       disabled={isButtonLoading || !message.trim()}
                     >
