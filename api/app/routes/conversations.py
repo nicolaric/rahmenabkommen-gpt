@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from app.models import Conversation, Message
 from app import db
 
@@ -11,7 +11,7 @@ def get_conversations():
         Conversation.posted_in_feed == True
     ).options(
         db.joinedload(Conversation.messages)
-    ).all()
+    ).order_by(Conversation.creation_date.desc()).all()
     
     return jsonify([{
         "id": conv.id,
@@ -27,10 +27,10 @@ def get_conversations():
 def get_conversation(conversation_id):
     # Get a specific conversation with messages, sorted at database level
     conversation = Conversation.query.filter_by(id=conversation_id).options(
-        db.joinedload(Conversation.messages).order_by(Message.timestamp)
+        db.joinedload(Conversation.messages)
     ).first()
     
-    if not conversation:
+    if not conversation or not conversation.shared:
         return jsonify({"error": "Conversation not found"}), 404
     
     return jsonify({
@@ -42,3 +42,27 @@ def get_conversation(conversation_id):
             "timestamp": msg.timestamp.isoformat()
         } for msg in conversation.messages]
     })
+
+@conversations_bp.route('/conversations/share', methods=['POST'])
+def share_conversation():
+    data = request.get_json()
+    session_id = data.get("session_id")
+
+    if not session_id:
+        return jsonify({"error": "Session ID is required"}), 400
+
+    # Update the conversation to be posted in feed
+    conversation = Conversation.query.filter_by(session_id=session_id).first()
+    
+    if not conversation:
+        return jsonify({"error": "Conversation not found"}), 404
+    
+    # Mark as shared and posted in feed
+    conversation.shared = True
+    db.session.commit()
+    
+    return jsonify({
+        "id": conversation.id,
+        "shared": conversation.shared,
+        "posted_in_feed": conversation.posted_in_feed,
+    }), 200
