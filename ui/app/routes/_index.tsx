@@ -155,7 +155,7 @@ export default function Index() {
           </div>
           <div className="-mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
             <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-6">
-              <div className="hidden flex-col items-center justify-center gap-2 sm:flex md:gap-4 lg:gap-6">
+              <div className="hidden items-center justify-center gap-2 sm:flex md:gap-4 lg:gap-6">
                 <img
                   src="logo-colored.webp"
                   alt="Logo"
