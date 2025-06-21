@@ -2,23 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Default (light mode) */
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-gray-100 text-neutral-900 transition-colors duration-300;
 }
 
-@media (prefers-color-scheme: dark) {
-  html,
-  body {
-    color-scheme: dark;
-  }
-
-  textarea {
-    @apply text-gray-100 bg-gray-900; /* dark mode */
-  }
+/* Dark mode override */
+html.dark body {
+  @apply bg-gray-950 text-gray-100;
 }
 
-/* Global textarea styles for light mode */
+/* Textarea – light */
 textarea {
-  @apply text-neutral-900 bg-white; /* light mode */
+  @apply bg-transparent text-neutral-900 transition-colors duration-300;
 }
+
+/* Textarea – dark */
+html.dark textarea {
+  @apply bg-transparent text-gray-100 border-gray-700;
+}
+

@@ -4,11 +4,17 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
+    useLoaderData
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
-
-import "./tailwind.css";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { ToastProvider } from "./lib/components/toast";
+import "./tailwind.css";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    const cookie = request.headers.get("Cookie") || "";
+    const theme = cookie.includes("theme=dark") ? "dark" : "light";
+    return { theme };
+}
 
 export const links: LinksFunction = () => [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,8 +30,9 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+    const { theme } = useLoaderData<typeof loader>();
     return (
-        <html lang="en">
+         <html lang="de" className={theme === "dark" ? "dark" : "light"}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
