@@ -63,7 +63,7 @@ export default function ConversationDetails() {
           <a
             href="https://github.com/nicolaric/rahmenabkommen-gpt"
             target="_blank"
-            className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="hidden rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 sm:block"
           >
             <img
               src="/github-mark.svg"
@@ -74,7 +74,7 @@ export default function ConversationDetails() {
           <a
             href="https://x.com/NicolaRic2"
             target="_blank"
-            className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+            className="hidden rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 sm:block"
           >
             <img
               src="/X.svg"
