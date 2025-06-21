@@ -1,12 +1,12 @@
-import { Conversation } from './models/conversation';
+import { Conversation, ConversationShare } from './models/conversation';
 
 const baseUrl = import.meta.env.VITE_API_URL;
 
 export async function shareConversation(body: {
   sessionId: string;
   postedInFeed?: boolean;
-}) {
-  return api(`${baseUrl}/conversations/share`, {
+}): Promise<ConversationShare> {
+  return api<ConversationShare>(`${baseUrl}/conversations/share`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
