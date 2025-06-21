@@ -13,9 +13,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+
+  // URL from .env
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
+
   const question = `Rahmenabkommen GPT - ${data?.messages?.at(0)?.question ?? 'Frage zum Rahmenabkommen'}`;
-  const url = `https://rahmenabkommen-gpt.ch/conversations/${data?.id}`;
-  const image = 'https://rahmenabkommen-gpt.ch/rich-preview.png';
+  const url = `${frontendUrl}/conversations/${data?.id}`;
+  const image = `${frontendUrl}/rich-preview.png`;
 
   return [
     { charset: 'utf-8' },
