@@ -7,3 +7,9 @@ export type Conversation = {
     timestamp: string;
   }[];
 };
+
+export type ConversationShare = {
+  id: string;
+  shared: boolean;
+  posted_in_feed: boolean;
+};
