@@ -123,7 +123,7 @@ export default function Index() {
                     <div className="fixed left-0 top-0 flex h-12 w-full items-center justify-between bg-gray-100 px-4 dark:bg-gray-900 sm:justify-end">
                         <div className="flex items-center justify-center gap-2 sm:hidden">
                             <img src="logo-colored.webp" alt="Logo" className="h-8 w-8" />
-                            <div className="text-2xl text-gray-700 dark:text-white sm:text-3xl">
+                            <div className="text-base text-gray-700 dark:text-white">
                                 Rahmenabkommen GPT
                             </div>
                         </div>
@@ -132,7 +132,7 @@ export default function Index() {
                             <a
                                 href="https://github.com/nicolaric/rahmenabkommen-gpt"
                                 target="_blank"
-                                className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 hidden sm:block"
                             >
                                 <img
                                     src="github-mark.svg"
@@ -143,7 +143,7 @@ export default function Index() {
                             <a
                                 href="https://x.com/NicolaRic2"
                                 target="_blank"
-                                className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                                className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 hidden sm:block"
                             >
                                 <img
                                     src="X.svg"
@@ -165,7 +165,7 @@ export default function Index() {
                                     Rahmenabkommen GPT
                                 </div>
                             </div>
-                            <div className="max-w-3xl px-6 text-center text-xl text-gray-600 dark:text-gray-400">
+                            <div className="max-w-3xl px-6 text-center text-base md:text-xl text-gray-600 dark:text-gray-400">
                                 Stellen Sie Ihre Frage zum neuen Rahmenabkommen zwischen der
                                 Schweiz und der EU. Die Antworten sind sachlich, neutral und
                                 basieren ausschliesslich auf den offiziellen Verträgen – ohne
@@ -240,8 +240,8 @@ export default function Index() {
                                     <div
                                         key={index}
                                         className={`rounded-lg p-4 ${msg.role === 'user'
-                                                ? 'self-end border-gray-800 bg-gray-300 dark:bg-gray-900'
-                                                : 'w-full self-start p-4'
+                                            ? 'self-end border-gray-800 bg-gray-300 dark:bg-gray-900'
+                                            : 'w-full self-start p-4'
                                             }`}
                                         ref={
                                             msg.role === 'user' && index === conversation.length - 2
