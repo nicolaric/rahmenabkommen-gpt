@@ -15,3 +15,6 @@
 cd ..
 
 PYTHONPATH=$(pwd) gunicorn -w 4 -b 0.0.0.0:8000 main:app
+
+#Debug:
+#PYTHONPATH=$(pwd) gunicorn -w 4 -b 0.0.0.0:8000  "app:create_app()"

@@ -7,6 +7,11 @@ export default {
   darkMode: "class", // respect OS preference  
   theme: {
     extend: {
+      colors: {
+        gray: {
+          925: '#090f1a', // deine neue Zwischenfarbe
+        }
+      },      
       fontFamily: {
         sans: [
           "Inter",

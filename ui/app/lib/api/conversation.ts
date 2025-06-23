@@ -1,12 +1,13 @@
 import { Conversation, ConversationShare } from './models/conversation';
 
-const baseUrl = import.meta.env.VITE_API_URL;
+// URL from .env
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export async function shareConversation(body: {
   sessionId: string;
   postedInFeed?: boolean;
 }): Promise<ConversationShare> {
-  return api<ConversationShare>(`${baseUrl}/conversations/share`, {
+  return api<ConversationShare>(`${backendUrl}/conversations/share`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +20,7 @@ export async function shareConversation(body: {
 }
 
 export function getConversation(conversationId: string): Promise<Conversation> {
-  return api<Conversation>(`${baseUrl}/conversations/${conversationId}`, {
+  return api<Conversation>(`${backendUrl}/conversations/${conversationId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +29,7 @@ export function getConversation(conversationId: string): Promise<Conversation> {
 }
 
 export function getFeed(): Promise<Conversation[]> {
-  return api<Conversation[]>(`${baseUrl}/conversations/feed`, {
+  return api<Conversation[]>(`${backendUrl}/conversations/feed`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

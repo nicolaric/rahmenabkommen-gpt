@@ -49,8 +49,12 @@ export default function Index() {
 
     const lastUserMessageRef = useRef<HTMLDivElement>(null);
 
-    // Backend URL from .env
-    const baseUrl = import.meta.env.VITE_API_URL;
+    // Debug env Variablen
+    // console.log(import.meta.env)
+
+    // URLs from .env
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
 
     // Scroll to the last user message when the conversation changes
     useEffect(() => {
@@ -68,7 +72,7 @@ export default function Index() {
         setButtonLoading(true);
         const question = message.trim();
         try {
-            const askRequest = await fetch(`${baseUrl}/ask`, {
+            const askRequest = await fetch(`${backendUrl}/ask`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -172,7 +176,7 @@ export default function Index() {
                                 Meinungen, Bewertungen oder Spekulationen.
                             </div>
                         </div>
-                        <div className="mx-3 flex h-32 flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700">
+                        <div className="mx-3 flex h-32 flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
                             <textarea
                                 className="w-full flex-grow resize-none px-2 placeholder-gray-400 focus:outline-none dark:placeholder-gray-700"
                                 placeholder="Stelle deine Frage zum Rahmenabkommen..."
@@ -256,7 +260,7 @@ export default function Index() {
                                 ))}
                             </div>
                             <div className="fixed bottom-0 left-0 flex w-full items-center justify-center bg-gray-100 pb-4 dark:bg-gray-950">
-                                <div className="flex h-32 w-11/12 max-w-[48rem] flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700">
+                                <div className="flex h-32 w-11/12 max-w-[48rem] flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
                                     <textarea
                                         className="w-full flex-grow resize-none px-2 focus:outline-none"
                                         placeholder="Stelle deine Frage zum Rahmenabkommen..."
@@ -307,13 +311,13 @@ export default function Index() {
                             <input
                                 type="text"
                                 readOnly
-                                value={`https://rahmenabkommen-gpt.ch/conversations/${conversationId}`}
+                                value={`${frontendUrl}/conversations/${conversationId}`}
                                 className="flex-grow bg-transparent text-gray-700 focus:outline-none dark:text-gray-300"
                             />
                             <button
                                 onClick={() => {
                                     navigator.clipboard.writeText(
-                                        `https://rahmenabkommen-gpt.ch/conversations/${conversationId}`,
+                                        `${frontendUrl}/conversations/${conversationId}`,
                                     );
                                     showToast('Link kopiert!', 'success');
                                 }}
