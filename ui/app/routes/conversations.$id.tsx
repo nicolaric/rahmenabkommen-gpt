@@ -4,6 +4,7 @@ import { MetaFunction, useLoaderData } from '@remix-run/react';
 import Markdown from 'react-markdown';
 import { getConversation } from '~/lib/api/conversation';
 import { ThemeToggle } from '~/lib/components/ThemeToggle';
+import { buildMeta } from '~/lib/meta';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   if (!params.id) {
@@ -13,41 +14,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-
   // URL from .env
   const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
-
+  // Meta overrides
   const question = `Rahmenabkommen GPT - ${data?.messages?.at(0)?.question ?? 'Frage zum Rahmenabkommen'}`;
   const url = `${frontendUrl}/conversations/${data?.id}`;
-  const image = `${frontendUrl}/rich-preview.png`;
-
-  return [
-    { charset: 'utf-8' },
-    { title: question },
-    {
-      name: 'description',
-      content:
-        'Stelle deine Fragen zum Rahmenabkommen zwischen Schweiz und EU.',
-    },
-    { property: 'og:title', content: question },
-    {
-      property: 'og:description',
-      content:
-        'Stelle deine Fragen zum Rahmenabkommen zwischen Schweiz und EU.',
-    },
-    { property: 'og:image', content: image },
-    { property: 'og:url', content: url },
-    { property: 'og:type', content: 'website' },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: question },
-    {
-      name: 'twitter:description',
-      content:
-        'Stelle deine Fragen zum Rahmenabkommen zwischen Schweiz und EU.',
-    },
-    { name: 'twitter:image', content: image },
-    { viewport: 'width=device-width,initial-scale=1' },
-  ];
+  // Override meta content from lib/meta
+  return buildMeta({
+    title: question,
+    url: url,
+  });
 };
 
 export default function ConversationDetails() {
@@ -55,6 +31,12 @@ export default function ConversationDetails() {
 
   return (
     <div className="min-h-screen w-full">
+      {/* Hintergrundbild am unteren Rand, volle Breite, hinter allem */}
+      {/*<div
+          className="fixed bottom-0 left-0 w-full h-[60rem] bg-no-repeat bg-bottom bg-cover opacity-35 dark:opacity-15"
+          style={{ backgroundImage: `url('/matter-back.webp')` }}
+          aria-hidden="true"
+      />*/}   
       <div className="fixed left-0 flex h-12 w-full items-center justify-between gap-2 bg-gray-100 p-4 pt-6 dark:bg-gray-950">
         <div className="flex items-center gap-2 sm:gap-3 md:gap-3 lg:gap-3">
           <img src="/logo-colored.webp" alt="Logo" width="28px" height="28px" />

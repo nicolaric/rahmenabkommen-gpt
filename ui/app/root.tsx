@@ -4,10 +4,12 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  MetaFunction,
   useLoaderData,
 } from '@remix-run/react';
 import type { LinksFunction, LoaderFunctionArgs } from '@remix-run/node';
 import { ToastProvider } from './lib/components/toast';
+import { buildMeta } from './lib/meta';
 import './tailwind.css';
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -15,6 +17,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const theme = cookie.includes('theme=dark') ? 'dark' : 'light';
   return { theme };
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  // Use all default meta content from lib/meta
+  return buildMeta({});
+};
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

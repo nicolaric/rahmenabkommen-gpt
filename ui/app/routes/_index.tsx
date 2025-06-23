@@ -1,5 +1,7 @@
 import {
-    Description,
+  MetaFunction,
+} from '@remix-run/react';
+import {
     Dialog,
     DialogPanel,
     DialogTitle,
@@ -15,20 +17,12 @@ import Markdown from 'react-markdown';
 import { shareConversation } from '~/lib/api/conversation';
 import { ThemeToggle } from '~/lib/components/ThemeToggle';
 import { useToast } from '~/lib/components/toast';
+import { buildMeta } from '~/lib/meta';
 
-export const meta = () => {
-    return [
-        { charset: 'utf-8' },
-        {
-            title:
-                'Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.',
-        },
-        {
-            description: '',
-        },
-        { viewport: 'width=device-width,initial-scale=1' },
-    ];
-};
+export const meta: MetaFunction = ({ data }) => {
+  // Use all default meta content from lib/meta
+  return buildMeta({});
+}; 
 
 export default function Index() {
     const { showToast } = useToast();
@@ -118,8 +112,8 @@ export default function Index() {
         <div className="min-h-screen w-full">
             {/* Hintergrundbild am unteren Rand, volle Breite, hinter allem */}
             {/*<div
-                className="fixed bottom-0 left-0 w-full h-[60rem] bottom-[-24rem] bg-no-repeat bg-bottom bg-cover opacity-40"
-                style={{ backgroundImage: `url('/back.webp')` }}
+                className="fixed bottom-0 left-0 w-full h-[60rem] bg-no-repeat bg-bottom bg-cover opacity-35 dark:opacity-15"
+                style={{ backgroundImage: `url('/matter-back.webp')` }}
                 aria-hidden="true"
             />*/}
             {!conversation.length && (
@@ -157,7 +151,7 @@ export default function Index() {
                             </a>
                         </div>
                     </div>
-                    <div className="-mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
+                    <div className="z-10 -mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
                         <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-6">
                             <div className="hidden items-center justify-center gap-2 sm:flex md:gap-4 lg:gap-6">
                                 <img
@@ -176,9 +170,9 @@ export default function Index() {
                                 Meinungen, Bewertungen oder Spekulationen.
                             </div>
                         </div>
-                        <div className="mx-3 flex h-32 flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
+                        <div className="z-10 mx-3 flex h-32 flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
                             <textarea
-                                className="w-full flex-grow resize-none px-2 placeholder-gray-400 focus:outline-none dark:placeholder-gray-700"
+                                className="w-full flex-grow resize-none z-10 px-2 placeholder-gray-400 focus:outline-none dark:placeholder-gray-700"
                                 placeholder="Stelle deine Frage zum Rahmenabkommen..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
@@ -239,7 +233,7 @@ export default function Index() {
                     </div>
                     <div className="flex h-full w-full flex-col items-center justify-center">
                         <div className="flex w-11/12 max-w-[48rem] flex-col gap-4">
-                            <div className="space-y-4 rounded-lg p-4 pb-40 pt-24">
+                            <div className="z-10 space-y-4 rounded-lg p-4 pb-40 pt-24">
                                 {conversation.map((msg, index) => (
                                     <div
                                         key={index}
@@ -259,10 +253,10 @@ export default function Index() {
                                     </div>
                                 ))}
                             </div>
-                            <div className="fixed bottom-0 left-0 flex w-full items-center justify-center bg-gray-100 pb-4 dark:bg-gray-950">
-                                <div className="flex h-32 w-11/12 max-w-[48rem] flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
+                            <div className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-center bg-gray-100 pb-4 dark:bg-gray-950">
+                                <div className="flex h-32 w-11/12 z-10 max-w-[48rem] flex-col rounded-3xl border border-gray-300 p-2 pt-5 shadow-sm dark:border-gray-700 bg-opacity-70 bg-gray-200 dark:bg-gray-925">
                                     <textarea
-                                        className="w-full flex-grow resize-none px-2 focus:outline-none"
+                                        className="w-full flex-grow resize-none z-10 px-2 focus:outline-none"
                                         placeholder="Stelle deine Frage zum Rahmenabkommen..."
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
