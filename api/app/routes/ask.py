@@ -20,7 +20,7 @@ def ask():
     source_docs = resp.get("source_documents", [])
     answer, sources = format_with_footnotes(raw_answer, source_docs)
     
-    save_to_db(question, answer, session_id)
+    save_to_db(question, answer, session_id, sources)
 
     return jsonify({
         "session_id": session_id,
