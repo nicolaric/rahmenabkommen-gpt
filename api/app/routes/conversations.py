@@ -20,6 +20,7 @@ def get_conversations():
             "question": msg.question,
             "answer": msg.answer,
             "timestamp": msg.timestamp.isoformat()
+            "sources": msg.sources if hasattr(msg, 'sources') else []
         } for msg in conv.messages]
     } for conv in conversations])
 
@@ -39,7 +40,8 @@ def get_conversation(conversation_id):
         "messages": [{
             "question": msg.question,
             "answer": msg.answer,
-            "timestamp": msg.timestamp.isoformat()
+            "timestamp": msg.timestamp.isoformat(),
+            "sources": msg.sources if hasattr(msg, 'sources') else []
         } for msg in conversation.messages]
     })
 
@@ -82,6 +84,7 @@ def get_feed():
         "messages": [{
             "question": msg.question,
             "answer": msg.answer,
-            "timestamp": msg.timestamp.isoformat()
+            "timestamp": msg.timestamp.isoformat(),
+            "sources": msg.sources if hasattr(msg, 'sources') else []
         } for msg in conv.messages]
     } for conv in conversations])

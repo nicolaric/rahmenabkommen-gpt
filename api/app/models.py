@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from app.extensions import db
 from uuid import uuid4
+from sqlalchemy import JSON
 
 class Conversation(db.Model):
     __tablename__ = "conversation"
@@ -24,6 +25,8 @@ class Message(db.Model):
     question = db.Column(db.Text, nullable=False)
     answer = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+
+    sources = db.Column(JSON, nullable=True, default=list)
 
     conversation_id = db.Column(db.String(36), db.ForeignKey('conversation.id'), nullable=False)
     conversation = db.relationship("Conversation", back_populates="messages")

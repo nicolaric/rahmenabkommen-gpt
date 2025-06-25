@@ -46,7 +46,7 @@ class DefaultSourceRetriever(BaseRetriever):
         return docs
 
 
-def save_to_db(question: str, answer: str, session_id: str) -> Message:
+def save_to_db(question: str, answer: str, session_id: str, sources: List[str]) -> Message:
     conversation = Conversation.query.filter_by(session_id=session_id).first()
     if not conversation:
         conversation = Conversation(
@@ -62,7 +62,8 @@ def save_to_db(question: str, answer: str, session_id: str) -> Message:
         question=question,
         answer=answer,
         timestamp=datetime.now(timezone.utc),
-        conversation_id=conversation.id
+        conversation_id=conversation.id,
+        sources=sources if sources else [],
     )
     db.session.add(message)
     db.session.commit()
