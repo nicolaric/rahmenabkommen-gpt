@@ -28,8 +28,8 @@ class DefaultSourceRetriever(BaseRetriever):
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(self, retriever: BaseRetriever):
-        super().__init__(retriever=retriever)
+    def __init__(self, retriever: BaseRetriever, **kwargs):
+        super().__init__(retriever=retriever, **kwargs)
 
     def _get_relevant_documents(self, query: str, **kwargs) -> List[Document]:
         docs = self.retriever.get_relevant_documents(query, **kwargs)
