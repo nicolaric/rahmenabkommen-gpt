@@ -3,7 +3,7 @@
 # Datenbank-Migrationsskript für Flask-Projekte
 # Führt zuerst ein Upgrade aus und erstellt dann
 # eine neue Migration mit einem übergebenen Kommentar.
-# 
+#
 # Verwendung:
 #   ./migrate.sh "Kommentar zur Migration"
 #
@@ -15,7 +15,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-cd ..
+cd "$(dirname "$0")/.."
 
 # DB prüfen
 #PYTHONPATH=. flask db current

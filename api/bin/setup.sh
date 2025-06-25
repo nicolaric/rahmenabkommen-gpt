@@ -4,7 +4,7 @@
 #
 # Dieses Script führt folgende Schritte aus:
 # - Wechselt in das api-Verzeichnis
-# - Prüft, ob Python 3.11 installiert ist, sonst Abbruch
+# - Prüft, ob Python x.yz installiert ist, sonst Abbruch
 # - Erstellt eine virtuelle Python-Umgebung, falls nicht vorhanden
 # - Aktiviert die virtuelle Umgebung
 # - Aktualisiert pip, wheel und setuptools
@@ -17,7 +17,7 @@
 # Nutzung: einfach im Projekt-Root das Script ausführen, es kümmert sich um Setup & Migration.
 #
 # Voraussetzung:
-# - Python 3.11 muss installiert sein
+# - Python x.yz muss installiert sein (Siehe variable PYTHON_VERSION)
 # - Git, falls Aktualisierungen vom Repository notwendig sind
 #
 # Wichtig:
@@ -25,20 +25,23 @@
 #
 
 
-cd ..
+PYTHON_VERSION=3.11
+
+
+cd "$(dirname "$0")/.."
 
 set -e
 
 cd api
 
-if ! command -v python3.11 >/dev/null 2>&1; then
-  echo "❌ Python 3.11 is not installed. Please install it first."
+if ! command -v python${PYTHON_VERSION} >/dev/null 2>&1; then
+  echo "❌ Python ${PYTHON_VERSION} is not installed. Please install it first."
   exit 1
 fi
 
 if [ ! -d "venv" ]; then
-  python3.11 -m venv venv
-  echo "✅ Virtual environment created with Python 3.11."
+  python${PYTHON_VERSION} -m venv venv
+  echo "✅ Virtual environment created with Python ${PYTHON_VERSION}."
 fi
 
 . venv/bin/activate
