@@ -1,11 +1,14 @@
+export type Message = {
+  sources: { id: string; url: string }[];
+  question: string;
+  answer: string;
+  timestamp: string;
+};
+
 export type Conversation = {
   id: string;
   creation_date: string;
-  messages: {
-    question: string;
-    answer: string;
-    timestamp: string;
-  }[];
+  messages: Message[];
 };
 
 export type ConversationShare = {

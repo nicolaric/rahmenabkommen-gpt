@@ -3,6 +3,7 @@ import { LoaderFunctionArgs } from '@remix-run/node';
 import { MetaFunction, useLoaderData } from '@remix-run/react';
 import Markdown from 'react-markdown';
 import { getConversation } from '~/lib/api/conversation';
+import { Conversation } from '~/lib/components/conversation';
 import { ThemeToggle } from '~/lib/components/ThemeToggle';
 import { buildMeta } from '~/lib/meta';
 
@@ -36,7 +37,7 @@ export default function ConversationDetails() {
           className="fixed bottom-0 left-0 w-full h-[60rem] bg-no-repeat bg-bottom bg-cover opacity-35 dark:opacity-15"
           style={{ backgroundImage: `url('/matter-back.webp')` }}
           aria-hidden="true"
-      />*/}   
+      />*/}
       <div className="fixed left-0 flex h-12 w-full items-center justify-between gap-2 bg-gray-100 p-4 pt-6 dark:bg-gray-950">
         <div className="flex items-center gap-2 sm:gap-3 md:gap-3 lg:gap-3">
           <img src="/logo-colored.webp" alt="Logo" width="28px" height="28px" />
@@ -73,20 +74,7 @@ export default function ConversationDetails() {
       <div className="flex h-full w-full flex-col items-center justify-center">
         <div className="flex w-11/12 max-w-[48rem] flex-col">
           <div className="flex flex-col gap-6 space-y-4 pb-16 pt-20">
-            {conversation.messages.map((msg, index) => (
-              <div key={index} className="flex w-full flex-col gap-4">
-                <div className="w-full rounded-lg border-gray-800 bg-gray-300 p-4 dark:bg-gray-900">
-                  <div className="prose prose-neutral max-w-none dark:text-white">
-                    <Markdown>{msg.question}</Markdown>
-                  </div>
-                </div>
-                <div className="w-full self-start rounded-lg p-2 text-gray-800">
-                  <div className="prose prose-neutral max-w-none dark:text-white">
-                    <Markdown>{msg.answer}</Markdown>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <Conversation messages={conversation.messages} />
           </div>
         </div>
       </div>
