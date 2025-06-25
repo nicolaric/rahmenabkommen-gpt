@@ -19,7 +19,7 @@ def get_conversations():
         "messages": [{
             "question": msg.question,
             "answer": msg.answer,
-            "timestamp": msg.timestamp.isoformat()
+            "timestamp": msg.timestamp.isoformat(),
             "sources": msg.sources if hasattr(msg, 'sources') else []
         } for msg in conv.messages]
     } for conv in conversations])
