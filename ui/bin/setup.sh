@@ -5,6 +5,6 @@
 # Anwendung: ./install-ui-deps.sh oder im Rahmen eines Setup-Prozesses aufrufen.
 #
 
-cd ..
+cd "$(dirname "$0")/.."
 
 npm install

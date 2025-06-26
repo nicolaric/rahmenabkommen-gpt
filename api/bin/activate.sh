@@ -15,5 +15,6 @@ if [ "$0" = "$BASH_SOURCE" ] || [ "$(basename -- "$0")" = "activate.sh" ]; then
   exit 1
 fi
 
-cd ..
+cd "$(dirname "$0")/.."
+
 source venv/bin/activate

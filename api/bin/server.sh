@@ -12,7 +12,7 @@
 # Nutzung: Für den Produktionsbetrieb, um den Flask-Server performant zu starten.
 #
 
-cd ..
+cd "$(dirname "$0")/.."
 
 PYTHONPATH=$(pwd) gunicorn -w 4 -b 0.0.0.0:8000 main:app
 

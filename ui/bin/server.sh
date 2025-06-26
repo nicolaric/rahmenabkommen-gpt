@@ -5,6 +5,6 @@
 # Anwendung: ./start-ui.sh oder über ein übergeordnetes Setup-Skript
 #
 
-cd ..
+cd "$(dirname "$0")/.."
 
 npm run dev
