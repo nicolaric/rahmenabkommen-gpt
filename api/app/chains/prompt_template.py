@@ -1,4 +1,4 @@
-from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate, SystemMessagePromptTemplate
 
 def get_prompt_template():
     system_message = """
@@ -21,17 +21,5 @@ def get_prompt_template():
 
     return ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(system_message.strip()),
-        HumanMessagePromptTemplate.from_template(
-            "{question}"
-        )
+        HumanMessagePromptTemplate.from_template("Chatverlauf:\n{chat_history}\n\nFrage: {question}")
     ])
-
-# TODO: Das scheint nicht zu gehen und führt zu produktiven Fehler, wenn nach der Erstfrage eine 
-# Zweite im Chatverlauf gestellt wird. Die Referenzen scheinen auch nicht zu funktionieren:
-# Frage mal "Wie wird die Streitbeteiligung geregelt?" und klicke auf die Referenz [1].
-#    return ChatPromptTemplate.from_messages([
-#        SystemMessagePromptTemplate.from_template(system_message.strip()),
-#        HumanMessagePromptTemplate.from_template(
-#            "Verträge:\n{document.page_content}\n\nQuelle: {document.metadata.source}"
-#        )
-#    ])

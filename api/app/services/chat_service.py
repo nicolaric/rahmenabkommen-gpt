@@ -78,8 +78,8 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
 
     if session_id not in sessions:
         memory = ConversationBufferMemory(
-            memory_key="chat_history",
             return_messages=True,
+            memory_key="chat_history",
             input_key="question",
             output_key="answer"
         )
@@ -94,16 +94,15 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
                     memory.chat_memory.add_user_message(msg.question)
                     memory.chat_memory.add_ai_message(msg.answer)
 
-        # No inline 'Quelle' here; we will use footnotes
         document_prompt = PromptTemplate(
-            input_variables=["page_content"],
-            template="{page_content}"
+            input_variables=["page_content", "source"],
+            template="Vertragstext:\n{page_content}\n\nQuelle: {source}"
         )
 
         final_prompt = PromptTemplate.from_template(
             """
                 Beantworte die Frage so präzise wie möglich anhand des Kontextes.
-                Verwende pro Quelle einen Index [1], [2], ... 
+                Verwende pro Quelle einen Index und füge diese direkt nach der ersten Verwendung an in diesem Format: [1], [2], ... 
                 Ergänze die Antwort niemals mit einer Fussnote. 
 
                 Frage: {question}
@@ -138,7 +137,7 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
             return_source_documents=True,
         )
         sessions[session_id] = conv
-
+    print(sessions[session_id].memory.load_memory_variables({"question": "Platzhalter?"})["chat_history"])
     return session_id, sessions[session_id]
 
 
