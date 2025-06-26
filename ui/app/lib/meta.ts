@@ -4,7 +4,7 @@ const defaultImage = `${frontendUrl}/rich-preview.png`;
 
 export function buildMeta({
   // Default meta content
-  title = 'Stelle deine Fragen an das Rahmenabkommen zwischen der Schweiz und der EU.',
+  title = 'Rahmenabkommen GPT',
   description = 'Stelle deine Fragen zum Rahmenabkommen zwischen der Schweiz und der EU.',
   image = defaultImage,
   url = frontendUrl,

@@ -50,7 +50,7 @@ pip install --upgrade pip wheel setuptools
 pip install -r requirements.txt
 
 # Optional explicit installs if missing from requirements.txt:
-pip install flask flask-cors flask-sqlalchemy flask-migrate python-dotenv
+pip install flask flask-cors flask-sqlalchemy flask-migrate python-dotenv pymupdf
 
 echo "✅ All requirements and core packages installed."
 

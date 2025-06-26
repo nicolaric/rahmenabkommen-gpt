@@ -22,6 +22,16 @@ def get_prompt_template():
     return ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(system_message.strip()),
         HumanMessagePromptTemplate.from_template(
-            "Verträge:\n{document.page_content}\n\nQuelle: {document.metadata.source}"
+            "{question}"
         )
     ])
+
+# TODO: Das scheint nicht zu gehen und führt zu produktiven Fehler, wenn nach der Erstfrage eine 
+# Zweite im Chatverlauf gestellt wird. Die Referenzen scheinen auch nicht zu funktionieren:
+# Frage mal "Wie wird die Streitbeteiligung geregelt?" und klicke auf die Referenz [1].
+#    return ChatPromptTemplate.from_messages([
+#        SystemMessagePromptTemplate.from_template(system_message.strip()),
+#        HumanMessagePromptTemplate.from_template(
+#            "Verträge:\n{document.page_content}\n\nQuelle: {document.metadata.source}"
+#        )
+#    ])
