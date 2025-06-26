@@ -8,6 +8,7 @@ def ask():
     data = request.get_json()
     question = data.get("question")
     session_id = data.get("session_id")
+    skip_storage = data.get("skip_storage", False)
 
     if not question:
         return jsonify({"error": "Bitte gib eine Frage an."}), 400
@@ -19,8 +20,10 @@ def ask():
     # Extract unique sources from documents
     source_docs = resp.get("source_documents", [])
     answer, sources = format_with_footnotes(raw_answer, source_docs)
-    
-    save_to_db(question, answer, session_id, sources)
+   
+    if skip_storage is False:
+        # Save the question, answer, session_id, and sources to the database
+        save_to_db(question, answer, session_id, sources)
 
     return jsonify({
         "session_id": session_id,
