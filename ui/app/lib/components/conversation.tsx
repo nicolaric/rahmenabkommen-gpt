@@ -29,7 +29,7 @@ export function Conversation({ messages }: { messages: Message[] }) {
                         </div>
                     </div>
                     <div className="w-full self-start rounded-lg p-2 text-gray-800">
-                        <div className="prose prose-neutral max-w-none dark:text-white">
+                        <div className="prose prose-neutral max-w-none dark:prose-invert">
                             <Markdown>{msg.answer}</Markdown>
                             <div className="flex flex-row gap-1">
                                 {msg.sources?.map((source, sourceIndex) => (
