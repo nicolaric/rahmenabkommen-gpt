@@ -6,11 +6,11 @@ import {
     XIcon,
 } from '@phosphor-icons/react';
 import { MetaFunction } from '@remix-run/react';
-import { useEffect, useRef, useState } from 'react';
-import Markdown from 'react-markdown';
+import { useState } from 'react';
 import { shareConversation } from '~/lib/api/conversation';
 import { Message } from '~/lib/api/models/conversation';
 import { Conversation } from '~/lib/components/conversation';
+import { Header } from '~/lib/components/header';
 import { ThemeToggle } from '~/lib/components/ThemeToggle';
 import { useToast } from '~/lib/components/toast';
 import { buildMeta } from '~/lib/meta';
@@ -100,41 +100,9 @@ export default function Index() {
                 aria-hidden="true"
             />*/}
             {!conversation.length && (
-                <div className="z-10 flex h-screen w-full items-center justify-center">
-                    <div className="fixed left-0 top-0 flex h-12 w-full items-center justify-between bg-gray-100 px-4 dark:bg-gray-900 sm:justify-end">
-                        <div className="flex items-center justify-center gap-2 sm:hidden">
-                            <img src="logo-colored.webp" alt="Logo" className="h-8 w-8" />
-                            <div className="text-base text-gray-700 dark:text-white">
-                                Rahmenabkommen GPT
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <ThemeToggle />
-                            <a
-                                href="https://github.com/nicolaric/rahmenabkommen-gpt"
-                                target="_blank"
-                                className="hidden rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 sm:block"
-                            >
-                                <img
-                                    src="github-mark.svg"
-                                    alt="GitHub Logo"
-                                    className="h-6 w-6 transition hover:brightness-125 dark:invert"
-                                />
-                            </a>
-                            <a
-                                href="https://x.com/NicolaRic2"
-                                target="_blank"
-                                className="hidden rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700 sm:block"
-                            >
-                                <img
-                                    src="X.svg"
-                                    alt="X Logo"
-                                    className="h-6 w-6 transition hover:brightness-125 dark:invert"
-                                />
-                            </a>
-                        </div>
-                    </div>
-                    <div className="z-10 -mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
+                <div className="flex h-screen w-full items-center justify-center">
+                    <Header hideLogo={true} />
+                    <div className="-mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
                         <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-6">
                             <div className="hidden items-center justify-center gap-2 sm:flex md:gap-4 lg:gap-6">
                                 <img
@@ -147,7 +115,7 @@ export default function Index() {
                                 </div>
                             </div>
                             <div className="max-w-3xl px-6 text-center text-base text-gray-600 dark:text-gray-400 md:text-xl">
-                                Stellen Sie Ihre Frage zum neuen Rahmenabkommen zwischen der
+                                Stellen deine Frage zum neuen Rahmenabkommen zwischen der
                                 Schweiz und der EU. Die Antworten sind sachlich, neutral und
                                 basieren ausschliesslich auf den offiziellen Verträgen – ohne
                                 Meinungen, Bewertungen oder Spekulationen.
@@ -187,33 +155,19 @@ export default function Index() {
             )}
             {conversation.length > 0 && (
                 <div>
-                    <div className="fixed left-0 flex h-12 w-full items-center justify-between gap-2 bg-gray-100 p-4 pt-6 dark:bg-gray-950">
-                        <div className="flex items-center gap-2 sm:gap-3 md:gap-3 lg:gap-3">
-                            <img
-                                src="logo-colored.webp"
-                                alt="Logo"
-                                width="28px"
-                                height="28px"
-                            />
-                            <div className="text-lg text-gray-700 dark:text-white sm:text-2xl md:text-4xl lg:text-3xl">
-                                Rahmenabkommen GPT
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <ThemeToggle />
-                            <button
-                                className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
-                                onClick={handleOpenShareDialog}
-                            >
-                                {!sharingLoading && (
-                                    <ShareNetworkIcon className="h-6 w-6 transition hover:brightness-125 dark:text-gray-100" />
-                                )}
-                                {sharingLoading && (
-                                    <CircleNotchIcon className="h-6 w-6 animate-spin transition hover:brightness-125 dark:text-gray-100" />
-                                )}
-                            </button>
-                        </div>
-                    </div>
+                    <Header navigateHome={() => setConversation([])}>
+                        <button
+                            className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                            onClick={handleOpenShareDialog}
+                        >
+                            {!sharingLoading && (
+                                <ShareNetworkIcon className="h-6 w-6 transition hover:brightness-125 dark:text-gray-100" />
+                            )}
+                            {sharingLoading && (
+                                <CircleNotchIcon className="h-6 w-6 animate-spin transition hover:brightness-125 dark:text-gray-100" />
+                            )}
+                        </button>
+                    </Header>
                     <div className="flex h-full w-full flex-col items-center justify-center">
                         <div className="flex w-11/12 max-w-[48rem] flex-col gap-4">
                             <div className="space-y-4 rounded-lg p-4 pb-40 pt-24">
