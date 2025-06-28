@@ -11,7 +11,7 @@ export default function Help() {
                     <strong>Rahmenabkommen GPT</strong> ist ein{' '}
                     <strong>Open-Source-Projekt</strong> mit einem klaren Ziel: Es soll
                     einfacher werden, sich mit dem komplexen und oft schwer zugänglichen
-                    Text des institutionellen Rahmenabkommens auseinanderzusetzen.
+                    Text des Rahmenabkommens auseinanderzusetzen.
                 </p>
 
                 <p className="mb-4">
@@ -46,7 +46,7 @@ export default function Help() {
                         href="https://github.com/nicolaric/rahmenabkommen-gpt"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-semibold text-blue-600 hover:underline"
+                        className="underline"
                     >
                         mitmachen ist erwünscht
                     </a>
