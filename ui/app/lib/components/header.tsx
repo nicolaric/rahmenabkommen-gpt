@@ -44,10 +44,12 @@ export function Header({ children, navigateHome, hideLogo }: HeaderProps) {
                     </Link>
                 </>
             )}
-
             <div className="flex items-center gap-4">
-                <Link to="/help">
-                    <QuestionIcon size={32} />
+                <Link
+                    to="/help"
+                    className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                >
+                    <QuestionIcon size={26} className="text-gray-800 dark:text-gray-200" />
                 </Link>
                 {children}
                 <ThemeToggle />
