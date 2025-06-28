@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Aktiviert die Python 3.11 Virtual Environment aus dem Projektstammverzeichnis.
 # Hinweis: Dieses Skript **muss** mit `source` oder `.` ausgeführt werden, damit die Aktivierung im aktuellen Terminal wirksam ist.
@@ -15,6 +15,6 @@ if [ "$0" = "$BASH_SOURCE" ] || [ "$(basename -- "$0")" = "activate.sh" ]; then
   exit 1
 fi
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$BASH_SOURCE")/.."
 
 source venv/bin/activate

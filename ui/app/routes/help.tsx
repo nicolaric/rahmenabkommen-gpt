@@ -4,7 +4,7 @@ export default function Help() {
     return (
         <div className="min-h-screen w-full">
             <Header />
-            <section className="mx-auto max-w-3xl px-4 pb-8 pt-16 font-sans leading-relaxed">
+            <section className="mx-auto max-w-3xl px-4 pb-8 pt-20 mt-8 font-sans leading-relaxed">
                 <h1 className="mb-6 text-3xl font-bold">Über Rahmenabkommen GPT</h1>
 
                 <p className="mb-4">

@@ -19,7 +19,7 @@ export function Header({ children, navigateHome, hideLogo }: HeaderProps) {
                     onClick={navigateHome ? navigateHome : void 0}
                 >
                     <img src="/logo-colored.webp" alt="Logo" width="28px" height="28px" />
-                    <div className="text-lg text-gray-700 dark:text-white sm:text-2xl md:text-4xl lg:text-3xl">
+                    <div className="text-lg text-gray-700 dark:text-white sm:text-2xl md:text-3xl lg:text-3xl">
                         Rahmenabkommen GPT
                     </div>
                 </Link>
