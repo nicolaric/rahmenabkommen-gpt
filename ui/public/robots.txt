@@ -1,0 +1,10 @@
+# Erlaubt allen Suchmaschinen Vollzugriff
+User-agent: *
+Allow: /
+
+# Falls es Pfade gibt, die nicht gecrawlt werden sollen, z.B. Admin‑Bereich:
+# Disallow: /admin/
+# Disallow: /login/
+
+# Verweis auf die XML‑Sitemap
+Sitemap: https://rahmenabkommen-gpt.ch/api/sitemap.xml
