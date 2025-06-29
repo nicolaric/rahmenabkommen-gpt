@@ -4,7 +4,6 @@ import { MetaFunction, useLoaderData } from '@remix-run/react';
 import { getConversation } from '~/lib/api/conversation';
 import { Conversation } from '~/lib/components/conversation';
 import { Header } from '~/lib/components/header';
-import { ThemeToggle } from '~/lib/components/ThemeToggle';
 import { buildMeta } from '~/lib/meta';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -39,7 +38,7 @@ export default function ConversationDetails() {
                 aria-hidden="true"
             />*/}
             <Header hideLogo={false} />
-            <div className="flex h-full w-full flex-col pt-4 items-center justify-center">
+            <div className="flex h-full w-full flex-col items-center justify-center pt-4">
                 <div className="flex w-11/12 max-w-[48rem] flex-col">
                     <div className="flex flex-col gap-6 space-y-4 pb-16 pt-20">
                         <Conversation messages={conversation.messages} />

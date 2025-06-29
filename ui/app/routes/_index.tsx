@@ -11,7 +11,6 @@ import { shareConversation } from '~/lib/api/conversation';
 import { Message } from '~/lib/api/models/conversation';
 import { Conversation } from '~/lib/components/conversation';
 import { Header } from '~/lib/components/header';
-import { ThemeToggle } from '~/lib/components/ThemeToggle';
 import { useToast } from '~/lib/components/toast';
 import { buildMeta } from '~/lib/meta';
 
