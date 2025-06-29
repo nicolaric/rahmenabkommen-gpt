@@ -23,7 +23,7 @@ def sitemap():
     ]:
         url = ET.SubElement(urlset, 'url')
         loc = ET.SubElement(url, 'loc')
-        loc.text = f'https://{path}'
+        loc.text = f'https://{BASE_URL}{path}'
         changefreq = ET.SubElement(url, 'changefreq')
         changefreq.text = freq
         priority = ET.SubElement(url, 'priority')
