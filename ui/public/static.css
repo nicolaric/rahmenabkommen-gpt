@@ -97,6 +97,39 @@ code {
   background-color: rgb(212, 212, 212);
 }
 
+.ask-button-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  height: 3rem;
+}
+
+.ask-button-container > a {
+  background-color: rgb(55, 65, 81);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  border-radius: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .header > .logo {
+    font-size: 1.25rem;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   html,
   body {
