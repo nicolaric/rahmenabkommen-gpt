@@ -1,4 +1,4 @@
-export type message = {
+export type Message = {
     sources: { id: string; url: string }[];
     question: string;
     answer: string;

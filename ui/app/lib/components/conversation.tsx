@@ -19,7 +19,7 @@ export function Conversation({ messages }: { messages: Message[] }) {
         <>
             {messages.map((msg, index) => (
                 <div
-                    key={index}
+                    key={msg.timestamp || `${msg.question}-${msg.answer}`}
                     ref={index === messages.length - 1 ? lastQuestionRef : undefined}
                     className="flex w-full flex-col gap-4"
                 >
@@ -32,7 +32,11 @@ export function Conversation({ messages }: { messages: Message[] }) {
                         <div className="prose prose-neutral max-w-none dark:prose-invert">
                             <Markdown>{msg.answer}</Markdown>
                             <div className="flex flex-row gap-1">
-                                {msg.sources?.map((source, sourceIndex) => (
+                                {msg.sources.map(
+                                    (
+                                        source: { id: string; url: string },
+                                        sourceIndex: number,
+                                    ) => (
                                     <div key={sourceIndex}>
                                         <a
                                             href={source.url}
@@ -43,7 +47,8 @@ export function Conversation({ messages }: { messages: Message[] }) {
                                             {source.id}
                                         </a>
                                     </div>
-                                ))}
+                                    ),
+                                )}
                             </div>
                         </div>
                     </div>
