@@ -161,4 +161,5 @@ cython_debug/
 interactions.csv
 node_modules/
 .DS_Store
+analysis/
 .jj/
