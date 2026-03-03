@@ -114,8 +114,11 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen w-full">
       <Header />
-      <section className="mx-auto max-w-4xl px-4 pb-16 pt-20 font-sans">
-        <h1 className="mb-6 text-3xl font-bold">Statistiken</h1>
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-20 font-sans">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Statistiken</h1>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Überblick über die Fragenaktivität und aktuelle Entwicklung.
+        </p>
 
         {hasError ? (
           <div className="mb-8 rounded-2xl bg-red-50 p-4 text-red-700 dark:bg-red-950/40 dark:text-red-200">
@@ -123,30 +126,43 @@ export default function StatsPage() {
           </div>
         ) : null}
 
-        {/* KPI */}
         <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
             <h2 className="text-lg text-gray-600 dark:text-gray-400">Total gestellte Fragen</h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">{totalQuestions.toLocaleString()}</p>
+            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+              {totalQuestions.toLocaleString()}
+            </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
             <h2 className="text-lg text-gray-600 dark:text-gray-400">Total Konversationen</h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">{totalConversations.toLocaleString()}</p>
+            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+              {totalConversations.toLocaleString()}
+            </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
             <h2 className="text-lg text-gray-600 dark:text-gray-400">Geteilte Konversationen</h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">{sharedConversations.toLocaleString()}</p>
+            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+              {sharedConversations.toLocaleString()}
+            </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
-            <h2 className="text-lg text-gray-600 dark:text-gray-400">Im Feed veröffentlichte Konversationen</h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">{feedConversations.toLocaleString()}</p>
+            <h2 className="text-lg text-gray-600 dark:text-gray-400">
+              Im Feed veröffentlichte Konversationen
+            </h2>
+            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+              {feedConversations.toLocaleString()}
+            </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
             <h2 className="text-lg text-gray-600 dark:text-gray-400">Ø Fragen pro Konversation</h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">{averageQuestionsPerConversation.toFixed(2)}</p>
+            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+              {averageQuestionsPerConversation.toFixed(2)}
+            </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
-            <h2 className="text-lg text-gray-600 dark:text-gray-400">Trend (letzte 7 vs. vorherige 7 Tage)</h2>
+            <h2 className="text-lg text-gray-600 dark:text-gray-400">
+              Trend (letzte 7 vs. vorherige 7 Tage)
+            </h2>
             <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
               {trend > 0 ? '+' : ''}
               {trend.toFixed(2)}%
@@ -154,11 +170,8 @@ export default function StatsPage() {
           </div>
         </div>
 
-        {/* Chart */}
         <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
-          <h2 className="mb-4 text-xl font-semibold">
-            Täglich gestellte Fragen
-          </h2>
+          <h2 className="mb-4 text-xl font-semibold">Täglich gestellte Fragen</h2>
           {dailyQuestions.length === 0 ? (
             <div className="rounded-lg bg-gray-100 p-4 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               Noch keine Fragen vorhanden.
