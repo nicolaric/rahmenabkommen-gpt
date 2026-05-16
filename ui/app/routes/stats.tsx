@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useLoaderData } from '@remix-run/react';
 import {
   CartesianGrid,
@@ -29,6 +30,9 @@ type ChartDataPoint = {
   axisLabel: string;
   tooltipLabel: string;
 };
+
+type TimeRange = '7d' | '30d' | '90d' | 'all';
+type Interval = 'daily' | 'weekly' | 'monthly';
 
 function toUtcDayDate(date: string): Date {
   return new Date(`${date}T00:00:00.000Z`);
@@ -94,62 +98,111 @@ function getIsoWeekNumber(date: Date): number {
   return Math.ceil(((utcDate.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-function buildChartSeries(dailyQuestions: DailyQuestionStat[]): ChartDataPoint[] {
+function formatMonthAxisLabel(date: Date): string {
+  return date.toLocaleDateString('de-CH', {
+    month: '2-digit',
+    year: '2-digit',
+  });
+}
+
+function formatMonthTooltipLabel(date: Date): string {
+  return date.toLocaleDateString('de-CH', {
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function filterByTimeRange(dailyQuestions: DailyQuestionStat[], timeRange: TimeRange): DailyQuestionStat[] {
+  if (dailyQuestions.length === 0 || timeRange === 'all') {
+    return dailyQuestions;
+  }
+
+  const latestDate = toUtcDayDate(dailyQuestions[dailyQuestions.length - 1].date);
+  const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+  const threshold = new Date(latestDate);
+  threshold.setUTCDate(threshold.getUTCDate() - (days - 1));
+
+  return dailyQuestions.filter((item) => toUtcDayDate(item.date) >= threshold);
+}
+
+function buildChartSeries(dailyQuestions: DailyQuestionStat[], interval: Interval): ChartDataPoint[] {
   if (dailyQuestions.length === 0) {
     return [];
   }
 
-  const latestDate = toUtcDayDate(dailyQuestions[dailyQuestions.length - 1].date);
-  const dailyThreshold = new Date(latestDate);
-  dailyThreshold.setUTCDate(dailyThreshold.getUTCDate() - 60);
-
-  const weeklyBuckets = new Map<string, { weekStart: Date; weekEnd: Date; count: number }>();
-  const recentDailyPoints: ChartDataPoint[] = [];
-
-  for (const item of dailyQuestions) {
-    const date = toUtcDayDate(item.date);
-
-    if (date >= dailyThreshold) {
-      recentDailyPoints.push({
+  if (interval === 'daily') {
+    return dailyQuestions.map((item) => {
+      const date = toUtcDayDate(item.date);
+      return {
         date: item.date,
         count: item.count,
         axisLabel: formatShortDate(date),
         tooltipLabel: formatLongDate(date),
-      });
-      continue;
-    }
-
-    const weekStart = getUtcWeekStart(date);
-    const weekStartKey = formatUtcDay(weekStart);
-    const existingBucket = weeklyBuckets.get(weekStartKey);
-
-    if (existingBucket) {
-      existingBucket.count += item.count;
-      continue;
-    }
-
-    const weekEnd = new Date(weekStart);
-    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
-    weeklyBuckets.set(weekStartKey, {
-      weekStart,
-      weekEnd,
-      count: item.count,
+      };
     });
   }
 
-  const weeklyPoints = Array.from(weeklyBuckets.values())
-    .sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime())
-    .map((bucket) => {
-      const weekNumber = getIsoWeekNumber(bucket.weekStart);
-      return {
-        date: formatUtcDay(bucket.weekStart),
-        count: bucket.count,
-        axisLabel: `KW ${weekNumber}`,
-        tooltipLabel: `KW ${weekNumber} (${formatShortDate(bucket.weekStart)}–${formatShortDate(bucket.weekEnd)})`,
-      };
-    });
+  if (interval === 'weekly') {
+    const weeklyBuckets = new Map<string, { weekStart: Date; count: number }>();
 
-  return [...weeklyPoints, ...recentDailyPoints];
+    for (const item of dailyQuestions) {
+      const date = toUtcDayDate(item.date);
+      const weekStart = getUtcWeekStart(date);
+      const weekStartKey = formatUtcDay(weekStart);
+      const existingBucket = weeklyBuckets.get(weekStartKey);
+
+      if (existingBucket) {
+        existingBucket.count += item.count;
+      } else {
+        weeklyBuckets.set(weekStartKey, {
+          weekStart,
+          count: item.count,
+        });
+      }
+    }
+
+    return Array.from(weeklyBuckets.values())
+      .sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime())
+      .map((bucket) => {
+        const weekEnd = new Date(bucket.weekStart);
+        weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+        const weekNumber = getIsoWeekNumber(bucket.weekStart);
+
+        return {
+          date: formatUtcDay(bucket.weekStart),
+          count: bucket.count,
+          axisLabel: `KW ${weekNumber}`,
+          tooltipLabel: `KW ${weekNumber} (${formatShortDate(bucket.weekStart)}–${formatShortDate(weekEnd)})`,
+        };
+      });
+  }
+
+  const monthlyBuckets = new Map<string, { monthStart: Date; count: number }>();
+
+  for (const item of dailyQuestions) {
+    const date = toUtcDayDate(item.date);
+    const monthStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+    const monthStartKey = formatUtcDay(monthStart);
+    const existingBucket = monthlyBuckets.get(monthStartKey);
+
+    if (existingBucket) {
+      existingBucket.count += item.count;
+    } else {
+      monthlyBuckets.set(monthStartKey, {
+        monthStart,
+        count: item.count,
+      });
+    }
+  }
+
+  return Array.from(monthlyBuckets.values())
+    .sort((a, b) => a.monthStart.getTime() - b.monthStart.getTime())
+    .map((bucket) => ({
+      date: formatUtcDay(bucket.monthStart),
+      count: bucket.count,
+      axisLabel: formatMonthAxisLabel(bucket.monthStart),
+      tooltipLabel: formatMonthTooltipLabel(bucket.monthStart),
+    }));
 }
 
 function calculateTrend(dailyQuestions: DailyQuestionStat[]): number {
@@ -205,9 +258,14 @@ export default function StatsPage() {
     averageQuestionsPerConversation,
     dailyQuestions,
   } = useLoaderData<LoaderData>();
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [interval, setInterval] = useState<Interval>('daily');
 
   const trend = calculateTrend(dailyQuestions);
-  const chartData = buildChartSeries(dailyQuestions);
+  const chartData = useMemo(() => {
+    const filteredDailyQuestions = filterByTimeRange(dailyQuestions, timeRange);
+    return buildChartSeries(filteredDailyQuestions, interval);
+  }, [dailyQuestions, timeRange, interval]);
 
   return (
     <div className="min-h-screen w-full">
@@ -261,7 +319,36 @@ export default function StatsPage() {
         </div>
 
         <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
-          <h2 className="mb-4 text-xl font-semibold">Täglich gestellte Fragen</h2>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Gestellte Fragen</h2>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label className="flex flex-col text-sm text-gray-700 dark:text-gray-300">
+                <span className="mb-1">Zeitraum</span>
+                <select
+                  value={timeRange}
+                  onChange={(event) => setTimeRange(event.target.value as TimeRange)}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                >
+                  <option value="7d">7 Tage</option>
+                  <option value="30d">30 Tage</option>
+                  <option value="90d">90 Tage</option>
+                  <option value="all">Alle</option>
+                </select>
+              </label>
+              <label className="flex flex-col text-sm text-gray-700 dark:text-gray-300">
+                <span className="mb-1">Intervall</span>
+                <select
+                  value={interval}
+                  onChange={(event) => setInterval(event.target.value as Interval)}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                >
+                  <option value="daily">Täglich</option>
+                  <option value="weekly">Wöchentlich</option>
+                  <option value="monthly">Monatlich</option>
+                </select>
+              </label>
+            </div>
+          </div>
           {dailyQuestions.length === 0 ? (
             <div className="rounded-lg bg-gray-100 p-4 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               Noch keine Fragen vorhanden.
