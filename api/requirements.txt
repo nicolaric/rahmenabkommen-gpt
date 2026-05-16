@@ -33,6 +33,7 @@ frozenlist==1.7.0
 fsspec==2025.5.1
 gitdb==4.0.12
 GitPython==3.1.44
+greenlet==3.2.3
 gritql==0.2.0
 gunicorn==23.0.0
 h11==0.16.0
@@ -56,13 +57,13 @@ jsonschema-specifications==2025.4.1
 keras==2.15.0
 Keras-Applications==1.0.4
 Keras-Preprocessing==1.0.2
-langchain==0.3.25
+langchain==0.3.27
 langchain-cli==0.0.36
-langchain-community==0.3.25
-langchain-core==0.3.65
+langchain-community==0.3.27
+langchain-core==0.3.74
 langchain-huggingface==0.3.0
-langchain-openai==0.3.23
-langchain-text-splitters==0.3.8
+langchain-openai==0.3.29
+langchain-text-splitters==0.3.9
 langdetect==1.0.9
 langserve==0.3.1
 langsmith==0.3.45
@@ -77,13 +78,14 @@ mypy_extensions==1.1.0
 narwhals==1.42.1
 networkx==3.5
 numpy==2.3.0
-openai==1.91.0
+openai==1.99.5
 orjson==3.10.18
 packaging==24.2
 pandas==2.3.0
 pathspec==0.12.1
 pdfminer.six==20250506
 pillow==11.2.1
+playwright==1.53.0
 propcache==0.3.2
 protobuf==6.31.1
 psutil==7.0.0
@@ -93,6 +95,7 @@ pydantic==2.11.6
 pydantic-settings==2.9.1
 pydantic_core==2.33.2
 pydeck==0.9.1
+pyee==13.0.0
 Pygments==2.19.1
 PyMuPDF==1.26.1
 PyPDF2==3.0.1
@@ -131,7 +134,6 @@ torch==2.7.1
 tornado==6.5.1
 tqdm==4.67.1
 transformers==4.52.4
--e git+https://github.com/in0rdr/txtv.git@036bbf32b304c0b292751ed15013ddcdcadf8d13#egg=txtv
 typer==0.16.0
 typing-inspect==0.9.0
 typing-inspection==0.4.1

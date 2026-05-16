@@ -106,6 +106,8 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
                 Beantworte die Frage so präzise wie möglich anhand des Kontextes.
                 Verwende pro Quelle einen Index und füge diese direkt nach der ersten Verwendung an in diesem Format: [1], [2], ... 
                 Antworte zwingend in der angegebenen Sprache: {language}.
+                Benutze nicht das scharfe S, sondern immer "ss" (z.B. "Schweiss").
+                Füge niemals die Quellenangababe am Ende der Antwort an, sondern nur direkt im Text.
 
                 Frage: {question}
 
@@ -142,44 +144,56 @@ def get_or_create_chain(session_id: Optional[str]) -> Tuple[str, ConversationalR
     return session_id, sessions[session_id]
 
 
-def format_with_footnotes(answer: str, source_docs: List[Document]) -> Tuple[str, List[str]]:
+def format_with_footnotes(answer: str, source_docs: List[Document]) -> Tuple[str, List[dict]]:
     """
-    Post-process: baut Fußnoten, entfernt aber die [n]-Marker wieder
-    aus dem Antworttext selbst.
+    Formats the answer by renumbering footnote markers based on their order of first appearance in the text.
+    The sources array is ordered according to the sequence in which the sources are first mentioned.
+    
+    Args:
+        answer (str): The answer text containing markers like [1], [2], etc.
+        source_docs (List[Document]): List of source documents retrieved for the answer.
+    
+    Returns:
+        Tuple[str, List[dict]]: The modified answer text with renumbered markers and a list of source dictionaries with continuous IDs and URLs.
     """
-    # 1) Mapping URL -> Marker in Reihenfolge der source_docs
-    url_to_marker: OrderedDict[str, str] = OrderedDict()
-    for idx, doc in enumerate(source_docs, start=1):
-        url = doc.metadata.get("source", "Keine Quelle verfügbar")
-        url_to_marker[url] = f"[{idx}]"
-
-    # 2) Ersetze in der Antwort alle vorkommenden URLs durch ihre Marker
-    tmp = answer
-    for url, marker in url_to_marker.items():
-        if url != "Keine Quelle verfügbar":
-            tmp = tmp.replace(url, marker)
-
-    # 3) Extrahiere nur die Marker, die tatsächlich im Text landen
-    seen_markers: List[str] = []
-    for m in re.finditer(r"\[\d+\]", tmp):
-        mark = m.group(0)
-        if mark not in seen_markers:
-            seen_markers.append(mark)
-
-    # 4) Aufbau des sources-Arrays
+    # Find all markers in the order they appear in the text
+    markers = re.findall(r'\[\d+\]', answer)
+    # Extract the marker numbers
+    marker_nums = [int(m.strip('[]')) for m in markers]
+    
+    # Get unique marker numbers in the order they first appear
+    unique_nums = []
+    seen = set()
+    for num in marker_nums:
+        if num not in seen:
+            unique_nums.append(num)
+            seen.add(num)
+    
+    # Create a mapping from original marker number to new continuous ID based on first appearance
+    mapping = {num: idx + 1 for idx, num in enumerate(unique_nums)}
+    
+    # Define a function to replace markers with new IDs
+    def replace_marker(match):
+        num = int(match.group(1))
+        if num in mapping:
+            return f'[{mapping[num]}]'
+        else:
+            return match.group(0)  # Leave unchanged if not in mapping
+    
+    # Replace markers in the answer text
+    answer = re.sub(r'\[(\d+)\]', replace_marker, answer)
+    
+    # Build the sources list based on the order of first appearance
     sources = []
-    for marker in seen_markers:
-        url = next(u for u, mk in url_to_marker.items() if mk == marker)
-        # Marker ist "[n]", wir wandeln n in int um
-        src_id = int(marker.strip("[]"))
-        sources.append({"id": src_id, "url": url})
-
-    # 5) Entferne alle Marker aus dem Antworttext
-    cleaned_answer = tmp.strip()
-
-    return cleaned_answer, sources
-
-
+    for new_id in range(1, len(unique_nums) + 1):
+        original_num = unique_nums[new_id - 1]
+        if original_num <= len(source_docs):
+            url = source_docs[original_num - 1].metadata.get("source", "Keine Quelle verfügbar")
+        else:
+            url = "Quelle nicht gefunden"
+        sources.append({"id": new_id, "url": url})
+    
+    return answer, sources
 def detect_language(text: str) -> str:
     """Erkennt die Sprache des Textes (de/fr/it/en)"""
     try:
