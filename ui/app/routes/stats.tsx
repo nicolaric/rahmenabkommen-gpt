@@ -23,6 +23,13 @@ type LoaderData = {
   dailyQuestions: DailyQuestionStat[];
 };
 
+type ChartDataPoint = {
+  date: string;
+  count: number;
+  axisLabel: string;
+  tooltipLabel: string;
+};
+
 function toUtcDayDate(date: string): Date {
   return new Date(`${date}T00:00:00.000Z`);
 }
@@ -53,6 +60,96 @@ function normalizeDailySeries(dailyQuestions: DailyQuestionStat[]): DailyQuestio
   }
 
   return normalized;
+}
+
+function formatShortDate(date: Date): string {
+  return date.toLocaleDateString('de-CH', {
+    day: '2-digit',
+    month: '2-digit',
+  });
+}
+
+function formatLongDate(date: Date): string {
+  return date.toLocaleDateString('de-CH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function getUtcWeekStart(date: Date): Date {
+  const weekStart = new Date(date);
+  const day = weekStart.getUTCDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  weekStart.setUTCDate(weekStart.getUTCDate() + diffToMonday);
+  return weekStart;
+}
+
+function getIsoWeekNumber(date: Date): number {
+  const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const day = utcDate.getUTCDay() || 7;
+  utcDate.setUTCDate(utcDate.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(utcDate.getUTCFullYear(), 0, 1));
+  return Math.ceil(((utcDate.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
+function buildChartSeries(dailyQuestions: DailyQuestionStat[]): ChartDataPoint[] {
+  if (dailyQuestions.length === 0) {
+    return [];
+  }
+
+  const latestDate = toUtcDayDate(dailyQuestions[dailyQuestions.length - 1].date);
+  const dailyThreshold = new Date(latestDate);
+  dailyThreshold.setUTCDate(dailyThreshold.getUTCDate() - 60);
+
+  const weeklyBuckets = new Map<string, { weekStart: Date; weekEnd: Date; count: number }>();
+  const recentDailyPoints: ChartDataPoint[] = [];
+
+  for (const item of dailyQuestions) {
+    const date = toUtcDayDate(item.date);
+
+    if (date >= dailyThreshold) {
+      recentDailyPoints.push({
+        date: item.date,
+        count: item.count,
+        axisLabel: formatShortDate(date),
+        tooltipLabel: formatLongDate(date),
+      });
+      continue;
+    }
+
+    const weekStart = getUtcWeekStart(date);
+    const weekStartKey = formatUtcDay(weekStart);
+    const existingBucket = weeklyBuckets.get(weekStartKey);
+
+    if (existingBucket) {
+      existingBucket.count += item.count;
+      continue;
+    }
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+    weeklyBuckets.set(weekStartKey, {
+      weekStart,
+      weekEnd,
+      count: item.count,
+    });
+  }
+
+  const weeklyPoints = Array.from(weeklyBuckets.values())
+    .sort((a, b) => a.weekStart.getTime() - b.weekStart.getTime())
+    .map((bucket) => {
+      const weekNumber = getIsoWeekNumber(bucket.weekStart);
+      return {
+        date: formatUtcDay(bucket.weekStart),
+        count: bucket.count,
+        axisLabel: `KW ${weekNumber}`,
+        tooltipLabel: `KW ${weekNumber} (${formatShortDate(bucket.weekStart)}–${formatShortDate(bucket.weekEnd)})`,
+      };
+    });
+
+  return [...weeklyPoints, ...recentDailyPoints];
 }
 
 function calculateTrend(dailyQuestions: DailyQuestionStat[]): number {
@@ -110,6 +207,7 @@ export default function StatsPage() {
   } = useLoaderData<LoaderData>();
 
   const trend = calculateTrend(dailyQuestions);
+  const chartData = buildChartSeries(dailyQuestions);
 
   return (
     <div className="min-h-screen w-full">
@@ -146,14 +244,6 @@ export default function StatsPage() {
             </p>
           </div>
           <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
-            <h2 className="text-lg text-gray-600 dark:text-gray-400">
-              Im Feed veröffentlichte Konversationen
-            </h2>
-            <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
-              {feedConversations.toLocaleString()}
-            </p>
-          </div>
-          <div className="rounded-2xl bg-gray-100 p-6 shadow-sm dark:bg-gray-800">
             <h2 className="text-lg text-gray-600 dark:text-gray-400">Ø Fragen pro Konversation</h2>
             <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
               {averageQuestionsPerConversation.toFixed(2)}
@@ -178,28 +268,15 @@ export default function StatsPage() {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={dailyQuestions}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(value) =>
-                    new Date(`${value}T00:00:00.000Z`).toLocaleDateString('de-CH', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })
-                  }
-                />
+                <XAxis dataKey="date" tickFormatter={(_, index) => chartData[index]?.axisLabel ?? ''} />
                 <YAxis allowDecimals={false} />
                 <Tooltip
-                  labelFormatter={(value) =>
-                    new Date(`${value}T00:00:00.000Z`).toLocaleDateString('de-CH', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })
-                  }
+                  labelFormatter={(_, payload) => {
+                    const point = payload?.[0]?.payload as ChartDataPoint | undefined;
+                    return point?.tooltipLabel ?? '';
+                  }}
                   formatter={(value) => [`${value} Frage(n)`, 'Anzahl']}
                 />
                 <Line
