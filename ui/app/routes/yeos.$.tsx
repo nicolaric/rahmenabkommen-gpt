@@ -8,7 +8,7 @@
  * key is privileged, so it must not become an open relay to the rest of
  * the API. Same approach as swissmem-ui in project-eos.
  */
-import type { Route } from './+types/api.proxy.$';
+import type { Route } from './+types/yeos.$';
 import { eosUrl, getEosEnv } from '../lib/eos.server';
 
 const ALLOWED_PATHS = [
