@@ -54,7 +54,8 @@ function InlineCitationKindIcon({
 
 /**
  * Wraps a chip. `data-citation` lets the claim text right before it light up
- * while the chip is hovered or its card is open.
+ * while the chip is hovered or its card is open. `max-w-full` keeps a long
+ * name chip inside narrow containers such as stat tiles; the name truncates.
  */
 function InlineCitation({ className, ...props }: React.ComponentProps<'span'>) {
   return (
@@ -206,7 +207,7 @@ function InlineCitationSource({
       </span>
       <span className="flex min-w-0 flex-col text-left">
         <span
-          className="truncate text-sm font-medium leading-5 text-foreground"
+          className="line-clamp-2 break-words text-sm font-medium leading-5 text-foreground"
           title={fullTitle ?? title}
         >
           {title}
@@ -263,7 +264,9 @@ function InlineCitationQuote({
       ) : null}
       <blockquote
         className={cn(
-          'line-clamp-6 rounded-lg bg-muted/60 px-3 py-2 text-[13px] leading-relaxed text-foreground/85',
+          // No line clamp: the passages list scrolls, so the full quote stays
+          // readable instead of ending in an ellipsis.
+          'break-words rounded-lg bg-muted/60 px-3 py-2 text-[13px] leading-relaxed text-foreground/85',
           className,
         )}
         {...props}
