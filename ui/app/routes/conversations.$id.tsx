@@ -40,23 +40,30 @@ export default function SharedConversation() {
   return (
     <>
       <Header />
-      <div data-chat-page="conversation" className="flex min-w-0 flex-1 flex-col">
-        <MessageScrollerProvider>
-          <MessageScroller className="flex-1">
-            <MessageScrollerViewport>
-              <div className="mx-auto w-full max-w-3xl px-2 py-6 pb-28 sm:px-4">
-                <ConversationComponent
-                  messages={messages}
-                  hideWorkingStatus
-                  activeTeamId={ORGANIZATION_ID}
-                  isSending={false}
-                  traceEventsByMessageId={{}}
-                  disableEdit
-                />
-              </div>
-            </MessageScrollerViewport>
-          </MessageScroller>
-        </MessageScrollerProvider>
+      {/* Same bounded height as the chat page: the viewport only scrolls
+          (and stops wheel events from reaching the page) inside a fixed box */}
+      <div
+        data-chat-page="conversation"
+        className="flex min-h-[calc(100svh-3.5rem)] min-w-0 flex-col sm:h-[calc(100dvh-3.5rem)] sm:min-h-0"
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <MessageScrollerProvider>
+            <MessageScroller className="flex-1">
+              <MessageScrollerViewport>
+                <div className="mx-auto w-full max-w-3xl px-2 py-6 pb-28 sm:px-4">
+                  <ConversationComponent
+                    messages={messages}
+                    hideWorkingStatus
+                    activeTeamId={ORGANIZATION_ID}
+                    isSending={false}
+                    traceEventsByMessageId={{}}
+                    disableEdit
+                  />
+                </div>
+              </MessageScrollerViewport>
+            </MessageScroller>
+          </MessageScrollerProvider>
+        </div>
       </div>
       <div className="fixed inset-x-0 bottom-4 flex justify-center">
         <Button size="lg" nativeButton={false} render={<Link to="/" />}>
