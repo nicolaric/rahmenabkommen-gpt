@@ -7,7 +7,7 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "start-prod": "PORT=4201 react-router-serve ./build/server/index.js",
+    "start-prod": "PORT=4201 node --env-file=.env node_modules/@react-router/serve/bin.cjs ./build/server/index.js",
     "sync-eos": "node bin/sync-eos.mjs",
     "typecheck": "react-router typegen && tsc"
   },
