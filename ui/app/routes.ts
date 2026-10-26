@@ -4,6 +4,7 @@ export default [
   index('routes/_index.tsx'),
   route('conversations/:id', 'routes/conversations.$id.tsx'),
   route('help', 'routes/help.tsx'),
+  route('impressum', 'routes/impressum.tsx'),
   route('stats', 'routes/stats.tsx'),
   route('action/set-theme', 'routes/action.set-theme.tsx'),
   route('action/sync-conversation', 'routes/action.sync-conversation.tsx'),

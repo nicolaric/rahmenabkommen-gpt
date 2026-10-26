@@ -165,3 +165,4 @@ analysis/
 
 # React Router
 .react-router/
+.jj/
