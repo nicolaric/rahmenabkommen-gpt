@@ -12,7 +12,7 @@ import { Link, useLoaderData } from 'react-router';
 import type { Route } from './+types/conversations.$id';
 import { getSharedConversation } from '../lib/backend.server';
 import { Header } from '../lib/components/header';
-import { buildMeta } from '../lib/meta';
+import { buildMeta, getDefaultQuestion } from '../lib/meta';
 import { toConversationMessages } from '../lib/shared-conversation';
 
 const ORGANIZATION_ID = import.meta.env.VITE_YEOS_ORGANIZATION_ID as string;
@@ -21,10 +21,12 @@ export async function loader({ params }: Route.LoaderArgs) {
   return getSharedConversation(params.id);
 }
 
-export function meta({ loaderData: data }: Route.MetaArgs) {
+export function meta({ loaderData: data, matches }: Route.MetaArgs) {
   const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
+  const locale = matches[0]?.loaderData?.locale;
   return buildMeta({
-    title: `Rahmenabkommen GPT - ${data?.messages?.at(0)?.question ?? 'Frage zum Rahmenabkommen'}`,
+    locale,
+    title: `Rahmenabkommen GPT - ${data?.messages?.at(0)?.question ?? getDefaultQuestion(locale)}`,
     url: `${frontendUrl}/conversations/${data?.id}`,
   });
 }
