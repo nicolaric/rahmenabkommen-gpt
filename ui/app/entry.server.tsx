@@ -1,140 +1,146 @@
-/**
- * By default, Remix will handle generating the HTTP Response for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/file-conventions/entry.server
- */
-
-import { PassThrough } from "node:stream";
-
-import type { AppLoadContext, EntryContext } from "@remix-run/node";
-import { createReadableStreamFromReadable } from "@remix-run/node";
-import { RemixServer } from "@remix-run/react";
-import { isbot } from "isbot";
-import { renderToPipeableStream } from "react-dom/server";
+import { themeSessionResolver } from '@eos/shared/theme/server';
+import { createReadableStreamFromReadable } from '@react-router/node';
+import { isbot } from 'isbot';
+import { PassThrough } from 'node:stream';
+import { renderToPipeableStream } from 'react-dom/server';
+import { I18nextProvider } from 'react-i18next';
+import type { EntryContext, RouterContextProvider } from 'react-router';
+import { ServerRouter } from 'react-router';
+import { Theme, ThemeProvider } from 'remix-themes';
+import { getInstance } from './middleware/i18next';
 
 const ABORT_DELAY = 5_000;
 
 export default function handleRequest(
-    request: Request,
-    responseStatusCode: number,
-    responseHeaders: Headers,
-    remixContext: EntryContext,
-    // This is ignored so we can keep it in the template for visibility.  Feel
-    // free to delete this parameter in your app if you're not using it!
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    loadContext: AppLoadContext
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  routerContext: RouterContextProvider,
 ) {
-    return isbot(request.headers.get("user-agent") || "")
-        ? handleBotRequest(
-            request,
-            responseStatusCode,
-            responseHeaders,
-            remixContext
-        )
-        : handleBrowserRequest(
-            request,
-            responseStatusCode,
-            responseHeaders,
-            remixContext
-        );
+  const themePromise = themeSessionResolver(request).then(
+    ({ getTheme }) => getTheme() ?? null,
+  );
+
+  return isbot(request.headers.get('user-agent') || '')
+    ? handleBotRequest(
+        request,
+        responseStatusCode,
+        responseHeaders,
+        reactRouterContext,
+        routerContext,
+        themePromise,
+      )
+    : handleBrowserRequest(
+        request,
+        responseStatusCode,
+        responseHeaders,
+        reactRouterContext,
+        routerContext,
+        themePromise,
+      );
 }
 
-function handleBotRequest(
-    request: Request,
-    responseStatusCode: number,
-    responseHeaders: Headers,
-    remixContext: EntryContext
+async function wrapWithProviders(
+  children: React.ReactNode,
+  theme: Theme | null,
+  routerContext: RouterContextProvider,
 ) {
-    return new Promise((resolve, reject) => {
-        let shellRendered = false;
-        const { pipe, abort } = renderToPipeableStream(
-            <RemixServer
-                context={remixContext}
-                url={request.url}
-                abortDelay={ABORT_DELAY}
-            />,
-            {
-                onAllReady() {
-                    shellRendered = true;
-                    const body = new PassThrough();
-                    const stream = createReadableStreamFromReadable(body);
-
-                    responseHeaders.set("Content-Type", "text/html");
-
-                    resolve(
-                        new Response(stream, {
-                            headers: responseHeaders,
-                            status: responseStatusCode,
-                        })
-                    );
-
-                    pipe(body);
-                },
-                onShellError(error: unknown) {
-                    reject(error);
-                },
-                onError(error: unknown) {
-                    responseStatusCode = 500;
-                    // Log streaming rendering errors from inside the shell.  Don't log
-                    // errors encountered during initial shell rendering since they'll
-                    // reject and get logged in handleDocumentRequest.
-                    if (shellRendered) {
-                        console.error(error);
-                    }
-                },
-            }
-        );
-
-        setTimeout(abort, ABORT_DELAY);
-    });
+  return (
+    <I18nextProvider i18n={getInstance(routerContext)}>
+      <ThemeProvider specifiedTheme={theme} themeAction="/action/set-theme">
+        {children}
+      </ThemeProvider>
+    </I18nextProvider>
+  );
 }
 
-function handleBrowserRequest(
-    request: Request,
-    responseStatusCode: number,
-    responseHeaders: Headers,
-    remixContext: EntryContext
+async function handleBotRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  routerContext: RouterContextProvider,
+  theme: Promise<Theme | null>,
 ) {
-    return new Promise((resolve, reject) => {
-        let shellRendered = false;
-        const { pipe, abort } = renderToPipeableStream(
-            <RemixServer
-                context={remixContext}
-                url={request.url}
-                abortDelay={ABORT_DELAY}
-            />,
-            {
-                onShellReady() {
-                    shellRendered = true;
-                    const body = new PassThrough();
-                    const stream = createReadableStreamFromReadable(body);
+  const url = new URL(request.url);
+  const themedChildren = await wrapWithProviders(
+    <ServerRouter context={reactRouterContext} url={url.href} />,
+    await theme,
+    routerContext,
+  );
 
-                    responseHeaders.set("Content-Type", "text/html");
-
-                    resolve(
-                        new Response(stream, {
-                            headers: responseHeaders,
-                            status: responseStatusCode,
-                        })
-                    );
-
-                    pipe(body);
-                },
-                onShellError(error: unknown) {
-                    reject(error);
-                },
-                onError(error: unknown) {
-                    responseStatusCode = 500;
-                    // Log streaming rendering errors from inside the shell.  Don't log
-                    // errors encountered during initial shell rendering since they'll
-                    // reject and get logged in handleDocumentRequest.
-                    if (shellRendered) {
-                        console.error(error);
-                    }
-                },
-            }
+  return new Promise((resolve, reject) => {
+    let shellRendered = false;
+    const { pipe, abort } = renderToPipeableStream(themedChildren, {
+      onAllReady() {
+        shellRendered = true;
+        const body = new PassThrough();
+        const stream = createReadableStreamFromReadable(body);
+        responseHeaders.set('Content-Type', 'text/html');
+        resolve(
+          new Response(stream, {
+            headers: responseHeaders,
+            status: responseStatusCode,
+          }),
         );
-
-        setTimeout(abort, ABORT_DELAY);
+        pipe(body);
+      },
+      onShellError(error: unknown) {
+        reject(error);
+      },
+      onError(error: unknown) {
+        responseStatusCode = 500;
+        if (shellRendered) {
+          console.error(error);
+        }
+      },
     });
+    setTimeout(abort, ABORT_DELAY);
+  });
+}
+
+async function handleBrowserRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  routerContext: RouterContextProvider,
+  theme: Promise<Theme | null>,
+) {
+  const url = new URL(request.url);
+  const themedChildren = await wrapWithProviders(
+    <ServerRouter context={reactRouterContext} url={url.href} />,
+    await theme,
+    routerContext,
+  );
+
+  return new Promise((resolve, reject) => {
+    let shellRendered = false;
+    const { pipe, abort } = renderToPipeableStream(themedChildren, {
+      onShellReady() {
+        shellRendered = true;
+        const body = new PassThrough();
+        const stream = createReadableStreamFromReadable(body);
+        responseHeaders.set('Content-Type', 'text/html');
+        resolve(
+          new Response(stream, {
+            headers: responseHeaders,
+            status: responseStatusCode,
+          }),
+        );
+        pipe(body);
+      },
+      onShellError(error: unknown) {
+        reject(error);
+      },
+      onError(error: unknown) {
+        responseStatusCode = 500;
+        if (shellRendered) {
+          console.error(error);
+        }
+      },
+    });
+    setTimeout(abort, ABORT_DELAY);
+  });
 }

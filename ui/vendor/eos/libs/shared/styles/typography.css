@@ -1,0 +1,24 @@
+/* Geist is the closest locally available equivalent to ChatGPT's OpenAI Sans.
+   Use the variable files so semibold/bold text uses real font outlines instead
+   of browser-synthesized weights. */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/geist/Geist[wght].woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/geist/Geist-Italic[wght].woff2') format('woff2');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/geist-mono/GeistMono[wght].woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}

@@ -1,0 +1,7 @@
+/* Display equations can exceed the chat column width; scroll horizontally
+   instead of breaking the message layout. */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}

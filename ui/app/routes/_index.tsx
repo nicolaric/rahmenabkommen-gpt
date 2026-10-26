@@ -1,266 +1,354 @@
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import {
-    ArrowUpIcon,
-    CircleNotchIcon,
-    ShareNetworkIcon,
-    XIcon,
-} from '@phosphor-icons/react';
-import { MetaFunction } from '@remix-run/react';
-import { useState } from 'react';
-import { shareConversation } from '~/lib/api/conversation';
-import { Message } from '~/lib/api/models/conversation';
-import { Conversation } from '~/lib/components/conversation';
-import { Header } from '~/lib/components/header';
-import { useToast } from '~/lib/components/toast';
-import { buildMeta } from '~/lib/meta';
+  ConversationComponent,
+  ConversationInput,
+  openaiConversationStreamManager,
+  useOpenAIConversationStream,
+  getApiErrorMessage,
+  type ConversationStreamMessage,
+  quotePassage,
+} from '@eos/app-ui/shared/client';
+import { cancelConversationRequest } from '@eos/data-access/api';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from '@eos/shared/ui';
+import { LoaderCircle, Share2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFetcher } from 'react-router';
+import { toast } from 'sonner';
+import { Header } from '../lib/components/header';
+import type { action as syncAction } from './action.sync-conversation';
 
-export const meta: MetaFunction = ({ data }) => {
-    // Use all default meta content from lib/meta
-    return buildMeta({});
-};
+const ORGANIZATION_ID = import.meta.env.VITE_YEOS_ORGANIZATION_ID as string;
+const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL as string;
 
 export default function Index() {
-    const { showToast } = useToast();
+  const { t } = useTranslation('common');
+  const { t: tConversation } = useTranslation('conversation');
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [messages, setMessages] = useState<ConversationStreamMessage[]>([]);
+  const [scrollToMessageId, setScrollToMessageId] = useState<string | null>(
+    null,
+  );
+  const [quotedPassage, setQuotedPassage] = useState<string | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const streamState = useOpenAIConversationStream(conversationId ?? '');
+  const syncFetcher = useFetcher<typeof syncAction>();
+  const shareFetcher = useFetcher<typeof syncAction>();
 
-    const [isButtonLoading, setButtonLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [conversation, setConversation] = useState<Message[]>([]);
-    const [conversationSessionId, setConversationSessionId] = useState<
-        string | undefined
-    >(undefined);
-    const [sharingLoading, setSharingLoading] = useState(false);
-    const [shareDialogOpen, setShareDialogOpen] = useState(false);
-    const [conversationId, setConversationId] = useState<string | undefined>(
-        undefined,
+  const isStreaming = Boolean(streamState?.isStreaming);
+  const sharedId =
+    shareFetcher.data && 'id' in shareFetcher.data
+      ? shareFetcher.data.id
+      : null;
+  const shareUrl = sharedId ? `${FRONTEND_URL}/conversations/${sharedId}` : '';
+
+  const resetConversation = useCallback(() => {
+    setConversationId(null);
+    setMessage('');
+    setIsSending(false);
+    setMessages([]);
+    setScrollToMessageId(null);
+    setQuotedPassage(null);
+    textareaRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const streamMessage = streamState?.message;
+    if (!streamMessage) return;
+
+    setMessages((prev) => {
+      const index = prev.findIndex((msg) => msg.id === streamMessage.id);
+      if (index === -1) return [...prev, streamMessage];
+      if (prev[index] === streamMessage) return prev;
+      const next = [...prev];
+      next[index] = streamMessage;
+      return next;
+    });
+  }, [streamState?.message]);
+
+  // Store every finished answer for the stats page and later sharing
+  const wasStreamingRef = useRef(false);
+  useEffect(() => {
+    if (wasStreamingRef.current && !isStreaming && conversationId) {
+      syncFetcher.submit(
+        { conversationId },
+        { method: 'post', action: '/action/sync-conversation' },
+      );
+    }
+    wasStreamingRef.current = isStreaming;
+  }, [isStreaming, conversationId, syncFetcher]);
+
+  useEffect(() => {
+    if (shareFetcher.state !== 'idle' || !shareFetcher.data) return;
+    if ('id' in shareFetcher.data) {
+      setShareDialogOpen(true);
+    } else {
+      toast.error(t('share.error'));
+    }
+  }, [shareFetcher.state, shareFetcher.data, t]);
+
+  const sendQuestion = async (rawQuestion: string) => {
+    const question = rawQuestion.trim();
+    if (isSending || !question) return;
+
+    const requestId = crypto.randomUUID();
+    setMessage('');
+    setIsSending(true);
+    setScrollToMessageId(requestId);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: requestId,
+        question,
+        answer: '',
+        timestamp: new Date().toISOString(),
+        sources: [],
+        citations: [],
+        tool_web_traces: [],
+        rating: null,
+        agent_id: null,
+        agent_name: null,
+      },
+    ]);
+
+    try {
+      const serverConversationId = await openaiConversationStreamManager.start({
+        conversationId: conversationId ?? undefined,
+        organizationId: ORGANIZATION_ID,
+        requestId,
+        initialQuestion: question,
+        requireDocumentSources: true,
+      });
+
+      if (!serverConversationId) {
+        throw new Error('Failed to create conversation');
+      }
+      setConversationId(serverConversationId);
+    } catch (error) {
+      setMessages((prev) => prev.filter((msg) => msg.id !== requestId));
+      setScrollToMessageId((current) =>
+        current === requestId ? null : current,
+      );
+      toast.error(
+        getApiErrorMessage(error, tConversation('messageCouldNotBeSent')),
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleAskAboutPassage = (passage: string) => {
+    setQuotedPassage(passage);
+    requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+      textarea.focus();
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    });
+  };
+
+  const handleSendMessage = () => {
+    if (isSending || !message.trim()) return;
+    // A quoted passage travels as a Markdown quote above the question.
+    const question = quotedPassage
+      ? `${quotePassage(quotedPassage)}${message}`
+      : message;
+    setQuotedPassage(null);
+    sendQuestion(question);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  // While an answer streams, the send button turns into a stop button
+  const handleCancel = async () => {
+    if (!conversationId || !streamState?.requestId || streamState.isCancelling)
+      return;
+    openaiConversationStreamManager.setCancelling(conversationId, true);
+    try {
+      await cancelConversationRequest(streamState.requestId, ORGANIZATION_ID);
+      openaiConversationStreamManager.cancel(conversationId);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, tConversation('cancelFailed')));
+      openaiConversationStreamManager.setCancelling(conversationId, false);
+    }
+  };
+
+  const handleShare = () => {
+    if (!conversationId) return;
+    shareFetcher.submit(
+      { conversationId, intent: 'share' },
+      { method: 'post', action: '/action/sync-conversation' },
     );
+  };
 
-    // URLs from .env
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
+  const input = (
+    <ConversationInput
+      ref={textareaRef}
+      quote={quotedPassage}
+      onRemoveQuote={() => setQuotedPassage(null)}
+      message={message}
+      setMessage={setMessage}
+      handleSendMessage={handleSendMessage}
+      isButtonLoading={isSending}
+      isGenerating={isStreaming}
+      isCancelling={Boolean(streamState?.isCancelling)}
+      handleCancel={handleCancel}
+      onKeyDown={handleKeyDown}
+      placeholder={t('askYourQuestion')}
+      className="mx-auto max-w-2xl"
+    />
+  );
 
-    const handleSendMessage = async () => {
-        if (isButtonLoading) return;
-
-        setButtonLoading(true);
-        const question = message.trim();
-        try {
-            const askRequest = await fetch(`${backendUrl}/ask`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ question, session_id: conversationSessionId }),
-            });
-            const askResponse = await askRequest.json();
-            setConversationSessionId(askResponse.session_id);
-            setMessage('');
-            setConversation((prev) => [
-                ...prev,
-                {
-                    question,
-                    answer: askResponse.answer,
-                    timestamp: new Date().toISOString(),
-                    sources: askResponse.sources || [],
-                },
-            ]);
-        } catch (error) {
-            console.error('Error creating API key:', error);
-            showToast('Etwas hat nicht funktioniert...', 'error');
-        } finally {
-            setButtonLoading(false);
-        }
-    };
-
-    const handleOpenShareDialog = async () => {
-        if (!conversationSessionId) {
-            showToast('Keine Konversation zum Teilen gefunden.', 'error');
-            return;
-        }
-        setSharingLoading(true);
-        const sharing = await shareConversation({
-            sessionId: conversationSessionId,
-        });
-        if (!sharing) {
-            showToast('Fehler beim Teilen der Konversation.', 'error');
-            setSharingLoading(false);
-            return;
-        }
-        setConversationId(sharing.id);
-        setShareDialogOpen(true);
-        setSharingLoading(false);
-    };
-
+  if (messages.length === 0) {
     return (
-        <div className="min-h-screen w-full">
-            {/* Hintergrundbild am unteren Rand, volle Breite, hinter allem */}
-            {/*<div
-                className="fixed bottom-0 left-0 w-full h-[60rem] bg-no-repeat bg-bottom bg-cover opacity-35 dark:opacity-15"
-                style={{ backgroundImage: `url('/matter-back.webp')` }}
-                aria-hidden="true"
-            />*/}
-            {!conversation.length && (
-                <div className="flex h-screen w-full flex-col items-center justify-center">
-                    <Header hideLogo={true} />
-                    <div className="absolute bottom-4 md:left-4 md:top-4">
-                        <a
-                            href="https://yeos.ai"
-                            target="_blank"
-                            className="flex items-center gap-2 rounded-md border border-gray-200 p-4 text-gray-600 hover:border-red-300"
-                        >
-                            <img
-                                src="https://yeos.ai/img/logo-short.svg"
-                                className="h-4 w-4"
-                            />
-                            <div>Gesponsert von yeos.ai</div>
-                        </a>
-                    </div>
-                    <div className="-mt-48 flex w-11/12 max-w-[48rem] flex-col gap-8">
-                        <div className="mb-6 mt-10 flex flex-col items-center justify-center gap-6">
-                            <div className="hidden items-center justify-center gap-2 sm:flex md:gap-4 lg:gap-6">
-                                <img
-                                    src="logo-colored.webp"
-                                    alt="Logo"
-                                    className="h-8 w-8 md:h-10 md:w-10 lg:h-14 lg:w-14"
-                                />
-                                <div className="text-2xl text-gray-700 dark:text-white sm:text-3xl md:text-5xl lg:text-6xl">
-                                    Rahmenabkommen GPT
-                                </div>
-                            </div>
-                            <div className="max-w-3xl px-6 text-center text-base text-gray-600 dark:text-gray-400 md:text-xl">
-                                Stelle deine Frage zum neuen Rahmenabkommen zwischen der Schweiz
-                                und der EU. Die Antworten sind sachlich, neutral und basieren
-                                ausschliesslich auf den offiziellen Verträgen – ohne Meinungen,
-                                Bewertungen oder Spekulationen.
-                            </div>
-                        </div>
-                        <div className="z-10 mx-3 flex h-32 flex-col rounded-3xl border border-gray-300 bg-gray-200 bg-opacity-70 p-2 pt-5 shadow-sm dark:border-gray-700 dark:bg-gray-925">
-                            <textarea
-                                className="z-10 w-full flex-grow resize-none px-2 placeholder-gray-400 focus:outline-none dark:placeholder-gray-700"
-                                placeholder="Stelle deine Frage zum Rahmenabkommen..."
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSendMessage();
-                                    }
-                                }}
-                            ></textarea>
-                            <div className="flex h-10 self-end">
-                                <button
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border-none bg-gray-800 text-2xl text-white opacity-100 transition-transform duration-200 hover:scale-110 disabled:opacity-50"
-                                    onClick={handleSendMessage}
-                                    disabled={isButtonLoading || !message.trim()}
-                                >
-                                    {!isButtonLoading && <ArrowUpIcon />}
-                                    {isButtonLoading && (
-                                        <CircleNotchIcon className="animate-spin" />
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                        <div className="text-center text-sm text-gray-400 dark:text-gray-600">
-                            KI kann Fehler machen, bitte überprüfe die Antworten.
-                        </div>
-                    </div>
-                </div>
-            )}
-            {conversation.length > 0 && (
-                <div>
-                    <Header
-                        navigateHome={() => {
-                            setConversation([]);
-                            setConversationSessionId(undefined);
-                        }}
-                        hideThemeToggleOnMobile={true}
-                    >
-                        <button
-                            className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
-                            onClick={handleOpenShareDialog}
-                        >
-                            {!sharingLoading && (
-                                <ShareNetworkIcon className="h-6 w-6 transition hover:brightness-125 dark:text-gray-100" />
-                            )}
-                            {sharingLoading && (
-                                <CircleNotchIcon className="h-6 w-6 animate-spin transition hover:brightness-125 dark:text-gray-100" />
-                            )}
-                        </button>
-                    </Header>
-                    <div className="flex h-full w-full flex-col items-center justify-center">
-                        <div className="flex w-11/12 max-w-[48rem] flex-col gap-4">
-                            <div className="space-y-4 rounded-lg p-4 pb-40 pt-24">
-                                <Conversation messages={conversation} />
-                            </div>
-                            <div className="fixed bottom-0 left-0 z-10 flex w-full items-center justify-center bg-gray-100 pb-4 dark:bg-gray-950">
-                                <div className="z-10 flex h-32 w-11/12 max-w-[48rem] flex-col rounded-3xl border border-gray-300 bg-gray-200 bg-opacity-70 p-2 pt-5 shadow-sm dark:border-gray-700 dark:bg-gray-925">
-                                    <textarea
-                                        className="z-10 w-full flex-grow resize-none px-2 focus:outline-none"
-                                        placeholder="Stelle deine Frage zum Rahmenabkommen..."
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                e.preventDefault();
-                                                handleSendMessage();
-                                            }
-                                        }}
-                                    ></textarea>
-                                    <div className="flex h-10 self-end">
-                                        <button
-                                            className="flex h-10 w-10 items-center justify-center rounded-full border-none bg-gray-800 text-2xl text-white transition-transform duration-200 hover:scale-110 disabled:opacity-50"
-                                            onClick={handleSendMessage}
-                                            disabled={isButtonLoading || !message.trim()}
-                                        >
-                                            {!isButtonLoading && <ArrowUpIcon />}
-                                            {isButtonLoading && (
-                                                <CircleNotchIcon className="animate-spin" />
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-            <Dialog
-                open={shareDialogOpen}
-                onClose={() => setShareDialogOpen(false)}
-                className="relative z-40"
-            >
-                <div className="fixed inset-0 flex w-screen items-center justify-center bg-black/50 p-4 backdrop-blur-md">
-                    <DialogPanel className="max-w-lg space-y-4 rounded-xl bg-white px-4 py-3 shadow-lg dark:bg-gray-800">
-                        <div className="flex items-center justify-between">
-                            <DialogTitle className="text-lg font-bold">
-                                Konversation teilen
-                            </DialogTitle>
-                            <button onClick={() => setShareDialogOpen(false)}>
-                                <XIcon></XIcon>
-                            </button>
-                        </div>
-                        <p>Kopiere den Link und teile ihn mit deinen Freunden.</p>
-                        <div className="flex items-center gap-2 rounded-lg border border-gray-300 p-2 dark:border-gray-700">
-                            <input
-                                type="text"
-                                readOnly
-                                value={`${frontendUrl}/conversations/${conversationId}`}
-                                className="flex-grow bg-transparent text-gray-700 focus:outline-none dark:text-gray-300"
-                            />
-                            <button
-                                onClick={() => {
-                                    navigator.clipboard.writeText(
-                                        `${frontendUrl}/conversations/${conversationId}`,
-                                    );
-                                    showToast('Link kopiert!', 'success');
-                                }}
-                                className="rounded-lg bg-gray-800 px-4 py-2 text-white transition-colors hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
-                            >
-                                Kopieren
-                            </button>
-                        </div>
-                    </DialogPanel>
-                </div>
-            </Dialog>
-        </div>
+      <>
+        <Header hideLogo />
+        <main
+          data-chat-page="conversation"
+          className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-8 px-4 pb-24"
+        >
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="flex items-center gap-3 lg:gap-5">
+              <img
+                src="/logo-colored.webp"
+                alt=""
+                className="size-10 lg:size-14"
+              />
+              <h1 className="text-2xl font-medium whitespace-nowrap min-[400px]:text-3xl sm:text-5xl lg:text-6xl">
+                {t('appName')}
+              </h1>
+            </div>
+            <p className="text-base text-balance text-muted-foreground md:text-xl">
+              {t('intro')}
+            </p>
+          </div>
+          <div className="w-full">{input}</div>
+          <p className="text-center text-sm text-muted-foreground">
+            {t('disclaimer')}
+          </p>
+          <a
+            href="https://yeos.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t('poweredBy')}
+            <img src="https://yeos.ai/img/logo-short.svg" alt="" className="size-4" />
+            yeos.ai
+          </a>
+        </main>
+      </>
     );
+  }
+
+  return (
+    <>
+      <Header onNavigateHome={resetConversation}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('share.button')}
+          disabled={!conversationId || isStreaming || shareFetcher.state !== 'idle'}
+          onClick={handleShare}
+        >
+          {shareFetcher.state !== 'idle' ? (
+            <LoaderCircle className="animate-spin" />
+          ) : (
+            <Share2 />
+          )}
+        </Button>
+      </Header>
+      <div
+        data-chat-page="conversation"
+        className="flex min-h-[calc(100svh-3.5rem)] min-w-0 flex-col sm:h-[calc(100dvh-3.5rem)] sm:min-h-0"
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <MessageScrollerProvider>
+            <MessageScroller className="flex-1">
+              <MessageScrollerViewport>
+                <div className="mx-auto w-full max-w-3xl px-2 py-6 pb-28 sm:px-4">
+                  <ConversationComponent
+                    messages={messages}
+                    scrollToMessageId={scrollToMessageId}
+                    hideWorkingStatus
+                    statusMessage={streamState?.statusMessage}
+                    statusTimings={streamState?.statusTimings}
+                    activeTeamId={ORGANIZATION_ID}
+                    isSending={isSending || isStreaming}
+                    traceEventsByMessageId={
+                      streamState?.traceEventsByMessageId ?? {}
+                    }
+                    outputBlocksByMessageId={
+                      streamState?.outputBlocksByMessageId ?? {}
+                    }
+                    disableEdit
+                    followUpQuestions={streamState?.followUpQuestions ?? []}
+                    clarificationQuestions={
+                      streamState?.clarificationQuestions ?? []
+                    }
+                    onFollowUpQuestion={sendQuestion}
+                    onAskAboutPassage={handleAskAboutPassage}
+                  />
+                </div>
+              </MessageScrollerViewport>
+              <MessageScrollerButton />
+            </MessageScroller>
+          </MessageScrollerProvider>
+        </div>
+        <div
+          data-mobile-composer
+          className="sticky bottom-0 z-20 shrink-0 border-t border-border bg-card/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur"
+        >
+          {input}
+        </div>
+      </div>
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('share.title')}</DialogTitle>
+            <DialogDescription>{t('share.description')}</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-2 rounded-lg border border-border p-2">
+            <input
+              type="text"
+              readOnly
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              className="min-w-0 flex-1 bg-transparent text-sm focus:outline-none"
+            />
+            <Button
+              onClick={async () => {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success(t('share.copied'));
+              }}
+            >
+              {t('share.copy')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
