@@ -8,21 +8,18 @@ const defaultImage = `${frontendUrl}/rich-preview.png`;
 const localized = {
   de: {
     ogLocale: 'de_DE',
-    description:
-      'Stelle deine Fragen zum Rahmenabkommen zwischen der Schweiz und der EU.',
-    defaultQuestion: 'Frage zum Rahmenabkommen',
+    description: 'Stelle deine Fragen zum Paket Schweiz-EU.',
+    defaultQuestion: 'Frage zum Paket Schweiz-EU',
   },
   fr: {
     ogLocale: 'fr_FR',
-    description:
-      "Pose tes questions sur l'accord-cadre entre la Suisse et l'UE.",
-    defaultQuestion: "Question sur l'accord-cadre",
+    description: 'Pose tes questions sur le paquet Suisse-UE.',
+    defaultQuestion: 'Question sur le paquet Suisse-UE',
   },
   it: {
     ogLocale: 'it_IT',
-    description:
-      "Fai le tue domande sull'accordo quadro tra la Svizzera e l'UE.",
-    defaultQuestion: "Domanda sull'accordo quadro",
+    description: 'Fai le tue domande sul pacchetto Svizzera-UE.',
+    defaultQuestion: 'Domanda sul pacchetto Svizzera-UE',
   },
 } satisfies Record<Language, Record<string, string>>;
 

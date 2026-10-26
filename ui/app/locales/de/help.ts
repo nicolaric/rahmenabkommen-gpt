@@ -1,7 +1,7 @@
 export default {
   title: 'Über Rahmenabkommen GPT',
   intro:
-    '<strong>Rahmenabkommen GPT</strong> ist ein <strong>Open-Source-Projekt</strong> mit einem klaren Ziel: Es soll einfacher werden, sich mit dem komplexen und oft schwer zugänglichen Text des Rahmenabkommens auseinanderzusetzen.',
+    '<strong>Rahmenabkommen GPT</strong> ist ein <strong>Open-Source-Projekt</strong> mit einem klaren Ziel: Es soll einfacher werden, sich mit dem komplexen und oft schwer zugänglichen Text des Pakets Schweiz-EU auseinanderzusetzen.',
   basis:
     'Die Anwendung basiert <strong>ausschliesslich auf dem offiziellen Vertragstext</strong> und hilft dabei, die über <strong>1900 Seiten</strong> besser zu verstehen – indem sie strukturierte, verständliche Antworten auf Fragen zum Inhalt liefert. Rahmenabkommen GPT ist die uns einzig bekannte Lösung, welche direkt auf den Vertragstext referenziert. Die Quellen sind dabei <link>die veröffentlichten Dokumente des EDA</link>.',
   democracy:

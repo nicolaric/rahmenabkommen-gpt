@@ -1,9 +1,9 @@
 export default {
   appName: 'Rahmenabkommen GPT',
   intro:
-    "Fai la tua domanda sul nuovo accordo quadro tra la Svizzera e l'UE. Le risposte sono oggettive, neutrali e si basano esclusivamente sui trattati ufficiali – senza opinioni, valutazioni o speculazioni.",
+    "Fai la tua domanda sul pacchetto Svizzera-UE. Le risposte sono oggettive, neutrali e si basano esclusivamente sui trattati ufficiali – senza opinioni, valutazioni o speculazioni.",
   disclaimer: "L'IA può commettere errori, verifica le risposte.",
-  askYourQuestion: "Fai la tua domanda sull'accordo quadro...",
+  askYourQuestion: "Fai la tua domanda sul pacchetto Svizzera-UE...",
   poweredBy: 'Offerto da',
   help: 'Aiuto',
   toggleTheme: 'Cambia tema',

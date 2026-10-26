@@ -1,7 +1,7 @@
 export default {
   title: 'Informazioni su Rahmenabkommen GPT',
   intro:
-    "<strong>Rahmenabkommen GPT</strong> è un <strong>progetto open source</strong> con un obiettivo chiaro: rendere più facile confrontarsi con il testo complesso e spesso poco accessibile dell'accordo quadro.",
+    "<strong>Rahmenabkommen GPT</strong> è un <strong>progetto open source</strong> con un obiettivo chiaro: rendere più facile confrontarsi con il testo complesso e spesso poco accessibile del pacchetto Svizzera-UE.",
   basis:
     "L'applicazione si basa <strong>esclusivamente sul testo ufficiale dei trattati</strong> e aiuta a comprendere meglio le oltre <strong>1900 pagine</strong> – fornendo risposte strutturate e comprensibili alle domande sul contenuto. Per quanto ne sappiamo, Rahmenabkommen GPT è l'unica soluzione che fa riferimento diretto al testo dei trattati. Le fonti sono <link>i documenti pubblicati dal DFAE</link>.",
   democracy:

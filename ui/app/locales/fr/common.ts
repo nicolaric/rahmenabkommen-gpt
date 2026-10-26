@@ -1,9 +1,9 @@
 export default {
   appName: 'Rahmenabkommen GPT',
   intro:
-    "Pose ta question sur le nouvel accord-cadre entre la Suisse et l'UE. Les réponses sont factuelles, neutres et reposent exclusivement sur les traités officiels – sans opinions, jugements ni spéculations.",
+    "Pose ta question sur le paquet Suisse-UE. Les réponses sont factuelles, neutres et reposent exclusivement sur les traités officiels – sans opinions, jugements ni spéculations.",
   disclaimer: "L'IA peut se tromper, vérifie les réponses.",
-  askYourQuestion: "Pose ta question sur l'accord-cadre...",
+  askYourQuestion: "Pose ta question sur le paquet Suisse-UE...",
   poweredBy: 'Propulsé par',
   help: 'Aide',
   toggleTheme: 'Changer de thème',
