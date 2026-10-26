@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData } from 'react-router';
 import {
   CartesianGrid,
   Line,
@@ -9,9 +9,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { DailyQuestionStat } from '~/lib/api/models/stats';
-import { getStats } from '~/lib/api/stats';
-import { Header } from '~/lib/components/header';
+import type { DailyQuestionStat } from '../lib/api/models/stats';
+import { getStats } from '../lib/backend.server';
+import { Header } from '../lib/components/header';
 
 type LoaderData = {
   hasError: boolean;
@@ -223,7 +223,7 @@ function calculateTrend(dailyQuestions: DailyQuestionStat[]): number {
 export async function loader() {
   try {
     const stats = await getStats();
-    return Response.json({
+    return {
       hasError: false,
       generatedAt: stats.generatedAt,
       totalQuestions: stats.totalQuestions,
@@ -232,9 +232,9 @@ export async function loader() {
       feedConversations: stats.feedConversations,
       averageQuestionsPerConversation: stats.averageQuestionsPerConversation,
       dailyQuestions: normalizeDailySeries(stats.dailyQuestions),
-    });
+    } satisfies LoaderData;
   } catch {
-    return Response.json({
+    return {
       hasError: true,
       generatedAt: null,
       totalQuestions: 0,
@@ -243,7 +243,7 @@ export async function loader() {
       feedConversations: 0,
       averageQuestionsPerConversation: 0,
       dailyQuestions: [],
-    });
+    } satisfies LoaderData;
   }
 }
 

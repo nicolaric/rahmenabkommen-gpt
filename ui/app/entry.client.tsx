@@ -1,18 +1,57 @@
-/**
- * By default, Remix will handle hydrating your app on the client for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/file-conventions/entry.client
- */
+import Backend from 'i18next-fetch-backend';
+import i18next from 'i18next';
+import { startTransition, StrictMode } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
+import { HydratedRouter } from 'react-router/dom';
+import I18nextBrowserLanguageDetector from 'i18next-browser-languagedetector';
+import { ThemeProvider } from 'remix-themes';
+import { getInitialThemeFromDom } from '@eos/shared/theme/client';
+import { reloadOnStaleChunks } from '@eos/utils';
 
-import { RemixBrowser } from "@remix-run/react";
-import { startTransition, StrictMode } from "react";
-import { hydrateRoot } from "react-dom/client";
+reloadOnStaleChunks();
 
-startTransition(() => {
+async function main() {
+  await i18next
+    .use(initReactI18next)
+    .use(Backend)
+    .use(I18nextBrowserLanguageDetector)
+    .init({
+      fallbackLng: 'de',
+      supportedLngs: ['de'],
+      preload: ['de'],
+      ns: ['common', 'conversation'],
+      defaultNS: 'common',
+      detection: {
+        order: ['htmlTag', 'cookie'],
+        caches: ['cookie'],
+      },
+      backend: {
+        loadPath: `/locales/{{lng}}/{{ns}}?v=${import.meta.env.BUILD_ID}`,
+      },
+      interpolation: {
+        escapeValue: false,
+      },
+      debug: import.meta.env.DEV,
+    });
+
+  const initialTheme = getInitialThemeFromDom();
+
+  startTransition(() => {
     hydrateRoot(
-        document,
-        <StrictMode>
-            <RemixBrowser />
-        </StrictMode>
+      document,
+      <I18nextProvider i18n={i18next}>
+        <ThemeProvider
+          specifiedTheme={initialTheme}
+          themeAction="/action/set-theme"
+        >
+          <StrictMode>
+            <HydratedRouter />
+          </StrictMode>
+        </ThemeProvider>
+      </I18nextProvider>,
     );
-});
+  });
+}
+
+main().catch((error) => console.error('Client init failed:', error));

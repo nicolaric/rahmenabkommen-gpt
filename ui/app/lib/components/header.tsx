@@ -1,70 +1,58 @@
-import { ReactNode } from 'react';
-import { ThemeToggle } from './ThemeToggle';
-import { QuestionIcon } from '@phosphor-icons/react';
-import { Link } from '@remix-run/react';
+import { Button } from '@eos/shared/ui';
+import { CircleHelp, Moon, Sun } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+import { Theme, useTheme } from 'remix-themes';
 
 type HeaderProps = {
   children?: ReactNode;
-  navigateHome?: () => void;
+  onNavigateHome?: () => void;
   hideLogo?: boolean;
-  hideThemeToggleOnMobile?: boolean;
 };
 
-export function Header({
-  children,
-  navigateHome,
-  hideLogo,
-  hideThemeToggleOnMobile,
-}: HeaderProps) {
+function ThemeToggle() {
+  const { t } = useTranslation('common');
+  const [theme, setTheme] = useTheme();
+
   return (
-    <div className="fixed left-0 top-0 flex h-12 w-full items-center justify-between gap-2 bg-gray-100 p-4 pt-6 dark:bg-gray-950">
-      {!hideLogo && (
-        <Link
-          to="/"
-          className="flex items-center gap-2 sm:gap-3 md:gap-3 lg:gap-3"
-          onClick={navigateHome ? navigateHome : void 0}
-        >
-          <img src="/logo-colored.webp" alt="Logo" width="28px" height="28px" />
-          <div className="text-lg text-gray-700 dark:text-white sm:text-2xl md:text-3xl lg:text-3xl">
-            Rahmenabkommen GPT
-          </div>
-        </Link>
-      )}
-      {hideLogo && (
-        <>
-          <div className="hidden sm:flex"></div>
-          <Link
-            to="/"
-            className="flex items-center gap-2 sm:hidden sm:gap-3 md:gap-3 lg:gap-3"
-            onClick={navigateHome ? navigateHome : void 0}
-          >
-            <img
-              src="/logo-colored.webp"
-              alt="Logo"
-              width="28px"
-              height="28px"
-            />
-            <div className="text-lg text-gray-700 dark:text-white sm:text-2xl md:text-4xl lg:text-3xl">
-              Rahmenabkommen GPT
-            </div>
-          </Link>
-        </>
-      )}
-      <div className="flex items-center gap-4">
-        <Link
-          to="/help"
-          className="rounded-full p-2 hover:bg-neutral-300 dark:bg-gray-800 dark:hover:bg-gray-700"
-        >
-          <QuestionIcon
-            size={26}
-            className="text-gray-800 dark:text-gray-200"
-          />
-        </Link>
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={t('toggleTheme')}
+      onClick={() => setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK)}
+    >
+      {theme === Theme.DARK ? <Sun /> : <Moon />}
+    </Button>
+  );
+}
+
+export function Header({ children, onNavigateHome, hideLogo }: HeaderProps) {
+  const { t } = useTranslation('common');
+
+  return (
+    <header className="sticky top-0 z-30 flex h-14 w-full shrink-0 items-center justify-between gap-2 bg-background/95 px-4 backdrop-blur">
+      <Link
+        to="/"
+        onClick={onNavigateHome}
+        className={`flex items-center gap-2 ${hideLogo ? 'invisible' : ''}`}
+      >
+        <img src="/logo-colored.webp" alt="" width={28} height={28} />
+        <span className="text-lg font-medium sm:text-2xl">{t('appName')}</span>
+      </Link>
+      <div className="flex items-center gap-1">
         {children}
-        <div className={hideThemeToggleOnMobile ? 'hidden sm:inline-flex' : ''}>
-          <ThemeToggle />
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('help')}
+          nativeButton={false}
+          render={<Link to="/help" />}
+        >
+          <CircleHelp />
+        </Button>
+        <ThemeToggle />
       </div>
-    </div>
+    </header>
   );
 }

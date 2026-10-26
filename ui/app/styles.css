@@ -1,0 +1,68 @@
+/* App-specific styles on top of the vendored yeos stylesheet
+   (@eos/shared/styles/default.css, imported in root.tsx). */
+
+/* Mobile Safari collapses the browser chrome reliably only when the document
+   itself scrolls. On phones, keep page-level app content in the document flow
+   and disable chat's nested message viewport scrolling. Component-local
+   scrollers (dialogs, dropdowns, tables) keep their own overflow. Mirrors the
+   [data-mobile-document-scroll] rules in app-ui. */
+@media (max-width: 639px) {
+  [data-mobile-document-scroll] {
+    min-height: 100svh;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  [data-mobile-document-scroll] > * {
+    min-height: 100svh;
+    height: auto !important;
+  }
+
+  /* Keep the composer in reach while the document is used as the mobile
+     scroll container. The message content carries extra bottom padding in the
+     conversation route so the dock cannot cover the last response. */
+  [data-mobile-document-scroll] [data-mobile-composer] {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  [data-mobile-document-scroll] [data-slot='message-scroller'] {
+    flex: none;
+    min-height: auto;
+  }
+
+  [data-mobile-document-scroll] [data-slot='message-scroller-viewport'] {
+    flex: none;
+    min-height: auto;
+    overflow-y: visible;
+    overscroll-behavior: auto;
+  }
+}
+
+/* Re-declare the shared variable fonts with relative paths so Vite's asset
+   pipeline emits the font files correctly. The shared typography.css uses
+   absolute /fonts/... paths for root-served apps. */
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/geist/Geist[wght].woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/geist/Geist-Italic[wght].woff2') format('woff2');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./fonts/geist-mono/GeistMono[wght].woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}

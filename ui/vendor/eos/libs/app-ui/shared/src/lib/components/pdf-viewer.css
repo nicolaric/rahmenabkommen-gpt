@@ -1,0 +1,9 @@
+/* The cited chunk in a PDF. The text layer's own text is transparent over the
+   rendered page, so the mark only adds a translucent yellow behind it. */
+.textLayer mark.pdf-chunk-highlight {
+  background-color: rgb(250 204 21 / 0.4);
+  color: transparent;
+  border-radius: 2px;
+  margin: 0;
+  padding: 0;
+}

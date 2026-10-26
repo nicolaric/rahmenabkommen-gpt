@@ -1,0 +1,384 @@
+/* @import "tailwindcss"; */
+@import 'tailwindcss';
+
+@source "../../../libs/app-ui/external-tools";
+@source "../../../libs/app-ui/shared";
+@source "../../../libs/app-ui/users";
+@source "../../../libs/auth-ui/shared";
+@source "../../../libs/data-access/api";
+@source "../../../libs/data-access/shared";
+@source "../../../libs/shared/auth/hydra-server";
+@source "../../../libs/shared/styles";
+@source "../../../libs/shared/theme";
+@source "../../../libs/shared/ui";
+@source "../../../libs/utils";
+
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-heading: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes loading-bar {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  --animate-loading-bar: loading-bar 1.5s ease-in-out infinite;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+
+  @keyframes grain {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    10% {
+      transform: translate(-5%, -10%);
+    }
+    20% {
+      transform: translate(-15%, 5%);
+    }
+    30% {
+      transform: translate(7%, -25%);
+    }
+    40% {
+      transform: translate(-5%, 25%);
+    }
+    50% {
+      transform: translate(-15%, 10%);
+    }
+    60% {
+      transform: translate(15%, 0%);
+    }
+    70% {
+      transform: translate(0%, 15%);
+    }
+    80% {
+      transform: translate(3%, 35%);
+    }
+    90% {
+      transform: translate(-10%, 10%);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer utilities {
+  /* Keep the global fallback aligned with the `font-sans` utility used by the
+     app shell. The previous Arial override made markdown look noticeably
+     different from the rest of the UI. */
+  body {
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    letter-spacing: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .scrollbar-hide {
+    /* Firefox */
+    scrollbar-width: none;
+    /* Safari + Chrome */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    /* Edge & alte IE */
+    -ms-overflow-style: none;
+  }
+}
+
+@layer base {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    /* Series colours: a soft slate first, then a coral taken from the logo
+       red and muted hues told apart by hue rather than lightness. */
+    --chart-1: oklch(0.55 0.03 255);
+    --chart-2: oklch(0.72 0.14 28);
+    --chart-3: oklch(0.72 0.08 175);
+    --chart-4: oklch(0.8 0.1 80);
+    --chart-5: oklch(0.68 0.08 250);
+    --chart-6: oklch(0.68 0.07 300);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-background: var(--sidebar);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+  }
+  .dark,
+  :root[class~='dark'] {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.72 0.03 255);
+    --chart-2: oklch(0.72 0.14 28);
+    --chart-3: oklch(0.76 0.08 175);
+    --chart-4: oklch(0.82 0.1 80);
+    --chart-5: oklch(0.74 0.08 250);
+    --chart-6: oklch(0.74 0.07 300);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-background: var(--sidebar);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+}
+
+/* Global markdown typography. This intentionally applies to every `prose`
+   block, instead of requiring each renderer to opt into a second class. The
+   values follow ChatGPT's current markdown: 16px text, 24px line-height,
+   normal tracking, and semibold emphasis. */
+@layer components {
+  .prose {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    font-optical-sizing: auto;
+    text-wrap: pretty;
+  }
+
+  .prose > p {
+    margin-block: 1rem;
+  }
+
+  .prose > p:first-child {
+    margin-top: 0;
+  }
+
+  .prose > :last-child {
+    margin-bottom: 0.25rem;
+  }
+
+  .prose strong {
+    font-weight: 600;
+  }
+
+  .prose a {
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .prose > h1,
+  .prose > h2,
+  .prose > h3,
+  .prose > h4,
+  .prose > h5,
+  .prose > h6 {
+    font-weight: 600;
+    letter-spacing: normal;
+  }
+
+  .prose > h1 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .prose > h2 {
+    margin: 1rem 0 0.25rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .prose > h3 {
+    margin: 1rem 0 0.25rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .prose > :is(ul, ol) {
+    margin-block: 0;
+  }
+
+  .prose > :is(ul, ol) > li {
+    margin-block: 0;
+  }
+
+  .prose > :is(ul, ol) > li > p {
+    margin-block: 0;
+  }
+
+  .prose > blockquote {
+    margin-block: 0;
+    padding-block: 0.5rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

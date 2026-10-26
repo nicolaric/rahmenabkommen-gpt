@@ -1,0 +1,87 @@
+/* Syntax colours for code blocks (see code-block.tsx). Prism emits class
+   names only, so the palette follows the app theme: muted ink on light, a
+   softer set on dark. */
+.code-block {
+  --code-comment: oklch(0.6 0.01 260);
+  --code-keyword: oklch(0.5 0.17 300);
+  --code-string: oklch(0.52 0.13 150);
+  --code-number: oklch(0.58 0.15 50);
+  --code-function: oklch(0.5 0.14 255);
+  --code-type: oklch(0.55 0.12 200);
+  --code-punctuation: oklch(0.55 0.01 260);
+  --code-deleted: oklch(0.55 0.18 25);
+}
+
+.dark .code-block {
+  --code-comment: oklch(0.6 0.01 260);
+  --code-keyword: oklch(0.78 0.12 305);
+  --code-string: oklch(0.8 0.12 145);
+  --code-number: oklch(0.8 0.12 60);
+  --code-function: oklch(0.78 0.11 250);
+  --code-type: oklch(0.8 0.09 200);
+  --code-punctuation: oklch(0.7 0.01 260);
+  --code-deleted: oklch(0.72 0.15 25);
+}
+
+.code-block .token.comment,
+.code-block .token.prolog,
+.code-block .token.doctype,
+.code-block .token.cdata {
+  color: var(--code-comment);
+  font-style: italic;
+}
+
+.code-block .token.keyword,
+.code-block .token.atrule,
+.code-block .token.important,
+.code-block .token.selector,
+.code-block .token.tag {
+  color: var(--code-keyword);
+}
+
+.code-block .token.string,
+.code-block .token.char,
+.code-block .token.attr-value,
+.code-block .token.regex,
+.code-block .token.inserted {
+  color: var(--code-string);
+}
+
+.code-block .token.number,
+.code-block .token.boolean,
+.code-block .token.constant,
+.code-block .token.symbol,
+.code-block .token.unit {
+  color: var(--code-number);
+}
+
+.code-block .token.function,
+.code-block .token.attr-name,
+.code-block .token.property {
+  color: var(--code-function);
+}
+
+.code-block .token.class-name,
+.code-block .token.builtin,
+.code-block .token.namespace {
+  color: var(--code-type);
+}
+
+.code-block .token.punctuation,
+.code-block .token.operator {
+  color: var(--code-punctuation);
+}
+
+.code-block .token.deleted {
+  color: var(--code-deleted);
+}
+
+.code-block .token.bold {
+  font-weight: 600;
+}
+
+/* Thin scrollbars inside the pane, so a long block doesn't look boxed in. */
+.code-block-pane {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}

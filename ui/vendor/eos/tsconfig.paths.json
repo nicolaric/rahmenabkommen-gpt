@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@eos/app-ui/shared/client": [
+        "./libs/app-ui/shared/src/index-client"
+      ],
+      "@eos/data-access/api": [
+        "./libs/data-access/api/src/index.ts"
+      ],
+      "@eos/data-access/shared": [
+        "./libs/data-access/shared/src/index.ts"
+      ],
+      "@eos/shared/styles/*": [
+        "./libs/shared/styles/*"
+      ],
+      "@eos/shared/theme/client": [
+        "./libs/shared/theme/src/client.ts"
+      ],
+      "@eos/shared/theme/server": [
+        "./libs/shared/theme/src/server.ts"
+      ],
+      "@eos/shared/ui": [
+        "./libs/shared/ui/src/index.ts"
+      ],
+      "@eos/utils": [
+        "./libs/utils/src/index.ts"
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { Header } from '~/lib/components/header';
+import { Header } from '../lib/components/header';
 
 export default function ImpressumPage() {
     return (
