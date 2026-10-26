@@ -265,7 +265,7 @@ export default function Index() {
 
   return (
     <>
-      <Header onNavigateHome={resetConversation}>
+      <Header onNavigateHome={resetConversation} hideAppName>
         <Button
           variant="ghost"
           size="icon"

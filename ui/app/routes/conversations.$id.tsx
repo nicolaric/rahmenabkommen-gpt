@@ -41,7 +41,7 @@ export default function SharedConversation() {
 
   return (
     <>
-      <Header />
+      <Header hideAppName />
       {/* Same bounded height as the chat page: the viewport only scrolls
           (and stops wheel events from reaching the page) inside a fixed box */}
       <div

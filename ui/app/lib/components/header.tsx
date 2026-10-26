@@ -23,6 +23,8 @@ type HeaderProps = {
   children?: ReactNode;
   onNavigateHome?: () => void;
   hideLogo?: boolean;
+  // Conversation views show only the logo; the name would crowd the actions
+  hideAppName?: boolean;
 };
 
 function ThemeToggle() {
@@ -74,7 +76,12 @@ function LanguageSwitcher() {
   );
 }
 
-export function Header({ children, onNavigateHome, hideLogo }: HeaderProps) {
+export function Header({
+  children,
+  onNavigateHome,
+  hideLogo,
+  hideAppName,
+}: HeaderProps) {
   const { t } = useTranslation('common');
 
   return (
@@ -84,8 +91,15 @@ export function Header({ children, onNavigateHome, hideLogo }: HeaderProps) {
         onClick={onNavigateHome}
         className={`flex items-center gap-2 ${hideLogo ? 'invisible' : ''}`}
       >
-        <img src="/logo-colored.webp" alt="" width={28} height={28} />
-        <span className="text-lg font-medium sm:text-2xl">{t('appName')}</span>
+        <img
+          src="/logo-colored.webp"
+          alt={hideAppName ? t('appName') : ''}
+          width={28}
+          height={28}
+        />
+        {!hideAppName && (
+          <span className="text-lg font-medium sm:text-2xl">{t('appName')}</span>
+        )}
       </Link>
       <div className="flex items-center gap-1">
         {children}
