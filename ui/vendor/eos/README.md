@@ -1,6 +1,6 @@
 # Vendored yeos UI libraries
 
-Copied from project-eos (a11b7b3786091f941a82d0c152a56acd147238a5) by `bin/sync-eos.mjs`.
+Copied from project-eos (df7eecfad7ab3b1d35e737a0d0451fc684773845) by `bin/sync-eos.mjs`.
 Do not edit these files here; change them in project-eos and sync again.
 
 External packages they import:
