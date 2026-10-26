@@ -257,10 +257,11 @@ function SourceChipLabel({
   );
 }
 
-// Name chips are wider than the old numbers; they truncate sooner on phones,
-// and never grow past their container (e.g. a narrow stat tile).
-const SOURCE_CHIP_CLASSES =
-  'min-w-0 max-w-[9rem] gap-1 font-medium sm:max-w-[15rem] align-[-0.2em]';
+// Chips show the full source name and only truncate when it doesn't fit the
+// line or container (e.g. a stat tile): `min-w-0` lets the chip shrink inside
+// the `max-w-full` wrapper. No percentage max-width, as that makes the wrapper
+// reserve the untruncated width and leaves a gap after the chip.
+const SOURCE_CHIP_CLASSES = 'min-w-0 gap-1 font-medium align-[-0.2em]';
 
 const interactiveTargetSelector =
   'button, a, input, textarea, select, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="textbox"], [role="checkbox"], [role="radio"], [role="switch"], [role="menuitem"], [role="combobox"], [role="slider"], [role="spinbutton"], [tabindex]:not([tabindex="-1"])';
