@@ -9,5 +9,5 @@ export default [
   route('action/set-theme', 'routes/action.set-theme.tsx'),
   route('action/sync-conversation', 'routes/action.sync-conversation.tsx'),
   route('locales/:lng/:ns', 'routes/locales.$lng.$ns.tsx'),
-  route('api/proxy/*', 'routes/api.proxy.$.tsx'),
+  route('yeos/*', 'routes/yeos.$.tsx'),
 ] satisfies import('@react-router/dev/routes').RouteConfig;
