@@ -374,6 +374,22 @@
   }
 }
 
+/* The typography plugin wraps inline code in literal backticks via
+   ::before/::after. Render it as a subtle chip instead, like ChatGPT. Unlayered
+   so it wins over the plugin's own rules regardless of layer order. */
+.prose :where(code):not(:where(pre code, [class~='not-prose'] *))::before,
+.prose :where(code):not(:where(pre code, [class~='not-prose'] *))::after {
+  content: none;
+}
+
+.prose :where(code):not(:where(pre code, [class~='not-prose'] *)) {
+  border-radius: 0.25rem;
+  background-color: var(--muted);
+  padding: 0.125rem 0.3rem;
+  font-size: 0.875em;
+  font-weight: 400;
+}
+
 @layer base {
   * {
     @apply border-border;
