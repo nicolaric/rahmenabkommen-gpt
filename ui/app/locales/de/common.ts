@@ -7,6 +7,7 @@ export default {
   poweredBy: 'Bereitgestellt von',
   help: 'Hilfe',
   toggleTheme: 'Farbschema wechseln',
+  language: 'Sprache',
   share: {
     button: 'Konversation teilen',
     title: 'Konversation teilen',

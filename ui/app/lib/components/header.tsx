@@ -1,9 +1,23 @@
-import { Button } from '@eos/shared/ui';
-import { CircleHelp, Moon, Sun } from 'lucide-react';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@eos/shared/ui';
+import { CircleHelp, Languages, Moon, Sun } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import { Theme, useTheme } from 'remix-themes';
+import { languages, toLanguage } from '../../locales/languages';
+
+const languageNames = {
+  de: 'Deutsch',
+  fr: 'Français',
+  it: 'Italiano',
+} satisfies Record<(typeof languages)[number], string>;
 
 type HeaderProps = {
   children?: ReactNode;
@@ -24,6 +38,39 @@ function ThemeToggle() {
     >
       {theme === Theme.DARK ? <Sun /> : <Moon />}
     </Button>
+  );
+}
+
+function LanguageSwitcher() {
+  const { t, i18n } = useTranslation('common');
+  const fetcher = useFetcher();
+
+  // Switch right away; the action stores the choice in a cookie for SSR
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    fetcher.submit({ lng }, { method: 'post', action: '/action/set-language' });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" aria-label={t('language')} />}
+      >
+        <Languages />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuRadioGroup
+          value={toLanguage(i18n.language)}
+          onValueChange={changeLanguage}
+        >
+          {languages.map((lng) => (
+            <DropdownMenuRadioItem key={lng} value={lng} lang={lng}>
+              {languageNames[lng]}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -51,6 +98,7 @@ export function Header({ children, onNavigateHome, hideLogo }: HeaderProps) {
         >
           <CircleHelp />
         </Button>
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
     </header>

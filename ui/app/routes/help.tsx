@@ -1,68 +1,69 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { Header } from '../lib/components/header';
 
+const strong = <strong />;
+
 export default function Help() {
+  const { t } = useTranslation('help');
+
   return (
     <div className="min-h-screen w-full">
       <Header />
       <section className="mx-auto mt-8 max-w-3xl px-4 pb-8 pt-20 font-sans leading-relaxed">
-        <h1 className="mb-6 text-3xl font-bold">Über Rahmenabkommen GPT</h1>
+        <h1 className="mb-6 text-3xl font-bold">{t('title')}</h1>
 
         <p className="mb-4">
-          <strong>Rahmenabkommen GPT</strong> ist ein{' '}
-          <strong>Open-Source-Projekt</strong> mit einem klaren Ziel: Es soll
-          einfacher werden, sich mit dem komplexen und oft schwer zugänglichen
-          Text des Rahmenabkommens auseinanderzusetzen.
+          <Trans t={t} i18nKey="intro" components={{ strong }} />
         </p>
 
         <p className="mb-4">
-          Die Anwendung basiert{' '}
-          <strong>ausschliesslich auf dem offiziellen Vertragstext</strong> und
-          hilft dabei, die über <strong>1900 Seiten</strong> besser zu verstehen
-          – indem sie strukturierte, verständliche Antworten auf Fragen zum
-          Inhalt liefert. Rahmenabkommen GPT ist die uns einzig bekannte Lösung,
-          welche direkt auf den Vertragstext refernziert. Die Quellen sind dabei{' '}
-          <a
-            href="https://www.europa.eda.admin.ch/de/vernehmlassung-paket-schweiz-eu"
-            className="underline"
-          >
-            die veröffentlichen Dokumente des EDA
-          </a>
+          <Trans
+            t={t}
+            i18nKey="basis"
+            components={{
+              strong,
+              link: (
+                <a
+                  href="https://www.europa.eda.admin.ch/de/vernehmlassung-paket-schweiz-eu"
+                  className="underline"
+                />
+              ),
+            }}
+          />
         </p>
 
         <p className="mb-4">
-          Unser Ziel ist es, damit einen Beitrag zur{' '}
-          <strong>Stärkung der Demokratie</strong> zu leisten: Wer informiert
-          ist, kann mitreden und mitentscheiden. Rahmenabkommen GPT möchte
-          Hürden abbauen und politische Teilhabe fördern.
+          <Trans t={t} i18nKey="democracy" components={{ strong }} />
         </p>
 
         <p className="mb-4">
-          Das Projekt wird aktuell von <strong>Nicola Richli</strong> und{' '}
-          <strong>Michael Gasche</strong> entwickelt und
-          <strong> kontinuierlich weiterentwickelt</strong>.
+          <Trans t={t} i18nKey="team" components={{ strong }} />
         </p>
 
         <p className="mb-4">
-          <strong>Fehler gefunden? Eine Idee zur Verbesserung?</strong> Wir
-          freuen uns über Rückmeldungen!
+          <Trans t={t} i18nKey="feedback" components={{ strong }} />
         </p>
 
         <p>
-          Der Quellcode ist öffentlich zugänglich –{' '}
-          <a
-            href="https://github.com/nicolaric/rahmenabkommen-gpt"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline"
-          >
-            mitmachen ist erwünscht
-          </a>
-          .
+          <Trans
+            t={t}
+            i18nKey="contribute"
+            components={{
+              link: (
+                <a
+                  href="https://github.com/nicolaric/rahmenabkommen-gpt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                />
+              ),
+            }}
+          />
         </p>
 
         {/* Entwickler-Section */}
         <div className="mt-12 border-t pt-6">
-          <h2 className="mb-4 text-2xl font-semibold">Entwickler</h2>
+          <h2 className="mb-4 text-2xl font-semibold">{t('developers')}</h2>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <a
@@ -73,10 +74,10 @@ export default function Help() {
               >
                 <img
                   src="/X.svg"
-                  alt="X Icon für Nicola Richli"
+                  alt={t('xIconFor', { name: 'Nicola Richli' })}
                   className="h-5 w-5 dark:invert"
                 />
-                Nicola Richli (Projektleitung)
+                Nicola Richli ({t('projectLead')})
               </a>
             </div>
             <div className="flex items-center space-x-3">
@@ -88,7 +89,7 @@ export default function Help() {
               >
                 <img
                   src="/X.svg"
-                  alt="X Icon für Michael Gasche"
+                  alt={t('xIconFor', { name: 'Michael Gasche' })}
                   className="h-5 w-5 dark:invert"
                 />
                 Michael Gasche
@@ -98,7 +99,7 @@ export default function Help() {
         </div>
         {/* Source Code-Section */}
         <div className="mt-12 border-t pt-6">
-          <h2 className="mb-4 text-2xl font-semibold">Source Code</h2>
+          <h2 className="mb-4 text-2xl font-semibold">{t('sourceCode')}</h2>
           <div className="space-y-4">
             <div className="mb-8 flex items-center space-x-6">
               {/* GitHub */}
@@ -114,7 +115,7 @@ export default function Help() {
                   alt="GitHub Icon"
                   className="h-6 w-6 dark:invert"
                 />
-                rahmenabkommen-gpt auf GitHub
+                {t('onGitHub')}
               </a>
             </div>
           </div>
@@ -125,7 +126,7 @@ export default function Help() {
               href="/impressum"
               className="text-gray-800 hover:underline dark:text-gray-200"
             >
-              Impressum
+              {t('impressum.title')}
             </a>
           </div>
         </div>

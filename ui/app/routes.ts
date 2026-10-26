@@ -7,6 +7,7 @@ export default [
   route('impressum', 'routes/impressum.tsx'),
   route('stats', 'routes/stats.tsx'),
   route('action/set-theme', 'routes/action.set-theme.tsx'),
+  route('action/set-language', 'routes/action.set-language.tsx'),
   route('action/sync-conversation', 'routes/action.sync-conversation.tsx'),
   route('locales/:lng/:ns', 'routes/locales.$lng.$ns.tsx'),
   route('yeos/*', 'routes/yeos.$.tsx'),

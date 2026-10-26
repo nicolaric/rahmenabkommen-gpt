@@ -1,14 +1,44 @@
+import { fallbackLanguage, type Language } from '../locales/languages';
+
 // URL from .env
 const frontendUrl = import.meta.env.VITE_FRONTEND_URL;
 const defaultImage = `${frontendUrl}/rich-preview.png`;
 
+// Meta functions can't use the i18next instance, so these live here
+const localized = {
+  de: {
+    ogLocale: 'de_DE',
+    description:
+      'Stelle deine Fragen zum Rahmenabkommen zwischen der Schweiz und der EU.',
+    defaultQuestion: 'Frage zum Rahmenabkommen',
+  },
+  fr: {
+    ogLocale: 'fr_FR',
+    description:
+      "Pose tes questions sur l'accord-cadre entre la Suisse et l'UE.",
+    defaultQuestion: "Question sur l'accord-cadre",
+  },
+  it: {
+    ogLocale: 'it_IT',
+    description:
+      "Fai le tue domande sull'accordo quadro tra la Svizzera e l'UE.",
+    defaultQuestion: "Domanda sull'accordo quadro",
+  },
+} satisfies Record<Language, Record<string, string>>;
+
+export function getDefaultQuestion(locale: Language = fallbackLanguage) {
+  return localized[locale].defaultQuestion;
+}
+
 export function buildMeta({
+  locale = fallbackLanguage,
   // Default meta content
   title = 'Rahmenabkommen GPT',
-  description = 'Stelle deine Fragen zum Rahmenabkommen zwischen der Schweiz und der EU.',
+  description = localized[locale].description,
   image = defaultImage,
   url = frontendUrl,
 }: {
+  locale?: Language;
   // Optional meta content overrides
   title?: string;
   description?: string;
@@ -26,7 +56,7 @@ export function buildMeta({
     { property: 'og:image', content: image },
     { property: 'og:url', content: frontendUrl },
     { property: 'og:type', content: 'website' },
-    { property: 'og:locale', content: 'de_DE' },
+    { property: 'og:locale', content: localized[locale].ogLocale },
 
     /* Twitter */
     { name: 'twitter:card', content: 'summary_large_image' },

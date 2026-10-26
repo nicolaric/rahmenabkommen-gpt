@@ -8,6 +8,7 @@ import I18nextBrowserLanguageDetector from 'i18next-browser-languagedetector';
 import { ThemeProvider } from 'remix-themes';
 import { getInitialThemeFromDom } from '@eos/shared/theme/client';
 import { reloadOnStaleChunks } from '@eos/utils';
+import { fallbackLanguage, languages } from './locales/languages';
 
 reloadOnStaleChunks();
 
@@ -17,10 +18,9 @@ async function main() {
     .use(Backend)
     .use(I18nextBrowserLanguageDetector)
     .init({
-      fallbackLng: 'de',
-      supportedLngs: ['de'],
-      preload: ['de'],
-      ns: ['common', 'conversation'],
+      fallbackLng: fallbackLanguage,
+      supportedLngs: [...languages],
+      ns: ['common', 'conversation', 'help'],
       defaultNS: 'common',
       detection: {
         order: ['htmlTag', 'cookie'],

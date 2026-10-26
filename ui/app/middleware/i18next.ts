@@ -1,17 +1,25 @@
 import { createInstance } from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import type { RouterContextProvider } from 'react-router';
+import { createCookie, type RouterContextProvider } from 'react-router';
 import { createI18nextMiddleware } from 'remix-i18next';
 import resources from '../locales';
+import { fallbackLanguage, languages } from '../locales/languages';
 
-const fallbackLanguage = 'de';
+// Set by the language switcher; without it the Accept-Language header decides
+export const localeCookie = createCookie('lng', {
+  path: '/',
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 60 * 60 * 24 * 365,
+});
 
-// German only for now; add locales here and in app/locales to translate
 export const [i18nextMiddleware, getLocale, getMiddlewareInstance] =
   createI18nextMiddleware({
     detection: {
-      supportedLanguages: [fallbackLanguage],
+      supportedLanguages: [...languages],
       fallbackLanguage,
+      cookie: localeCookie,
     },
     i18next: { resources, defaultNS: 'common' },
     plugins: [initReactI18next],
