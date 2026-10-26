@@ -60,7 +60,7 @@ function InlineCitation({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       data-citation=""
-      className={cn('inline-flex items-baseline gap-1', className)}
+      className={cn('inline-flex max-w-full items-baseline gap-1', className)}
       {...props}
     />
   );
